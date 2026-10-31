@@ -114,4 +114,4 @@ At installation, npm audit found 16 moderate advisories in development lint-tool
 
 The public repository and assignment branch were created and pushed successfully. Unauthenticated GitHub checks returned 200 with public visibility and the README containing Ghady Nazha.
 
-Email status: **not sent**. The browser automation runtime stopped while navigating to Gmail because it could not confidently verify the current browser URL. No email send was attempted after that stop. The exact prepared email is in docs/submission-email.txt; sending can resume once Gmail is available in Chrome. No deployment or optional recording is claimed.
+Email status: **sent on 31 October 2026** to khaled@techtalkslb.com. Gmail displayed Message sent and the Assignment 4 subject was visible in Sent. The exact sent text is in docs/submission-email.txt. This confirms sending, not recipient reading or acceptance. No deployment or optional recording is claimed.
