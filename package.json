@@ -1,6 +1,30 @@
 {
- "name":"nour-order-desk","version":"1.0.0","private":true,"type":"module",
- "scripts":{"dev":"next dev","build":"next build","start":"next start","lint":"eslint","test:api":"node scripts/api-test.mjs","test:browser":"node scripts/browser-test.mjs"},
- "dependencies":{"next":"16.4.3","react":"19.3.0","react-dom":"19.3.0"},
- "devDependencies":{"@types/node":"^20","@types/react":"^19","@types/react-dom":"^19","eslint":"^9","eslint-config-next":"16.4.3","typescript":"^5","tailwindcss":"^4","@tailwindcss/postcss":"^4","playwright":"^1.64.1"}
+  "name": "nour-order-desk",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "test:api": "node scripts/api-test.mjs",
+    "test:browser": "node scripts/browser-test.mjs"
+  },
+  "dependencies": {
+    "next": "16.4.3",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.3",
+    "typescript": "^5",
+    "tailwindcss": "^4",
+    "@tailwindcss/postcss": "^4",
+    "playwright": "^1.64.1"
+  }
 }

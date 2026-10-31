@@ -1,0 +1,17 @@
+Hello Khaled,
+
+I am submitting Assignment 4: Nour’s Order Desk.
+
+Full name: Ghady Nazha
+Public repository: https://github.com/GHady98/nour-order-desk
+Branch: assignment-4-nour-order-desk
+Branch URL: https://github.com/GHady98/nour-order-desk/tree/assignment-4-nour-order-desk
+
+The dashboard uses all five REST endpoints for CRUD, validates input on the server, calculates totals on the server, and includes summary counts and usable loading/error/empty/pending states.
+
+Verification: lint/build passed; 47 real API checks passed; the included Postman collection passed 17 requests and 18 assertions through Newman; browser acceptance/mobile/keyboard checks and restart behaviour passed. Documentation, JSON results, and screenshots are in docs/.
+
+Known limitations: Storage is intentionally in-memory and resets after server restart/development reload. No optional deployment or recording is included. Endpoint screenshots are explicitly labelled visual receipts generated from actual HTTP results, not Postman desktop screenshots. The work and explanations were AI-assisted. Development lint-tool dependency advisories are recorded; the production-only dependency audit reported zero.
+
+Thank you,
+Ghady Nazha

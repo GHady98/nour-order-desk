@@ -1,0 +1,83 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Nour — actual API results</title><style>body{font-family:Arial,sans-serif;background:#f3f0e8;color:#302e27;padding:25px;margin:0}.card{max-width:950px;margin:0 auto 28px;background:white;border:1px solid #d6d1c7;padding:30px;border-radius:12px}.heading{display:flex;justify-content:space-between;gap:30px;font-size:11px;color:#6b6255;letter-spacing:1px}.heading strong{color:#38623f}h1{font-size:25px;margin:25px 0 18px}h2{font-size:14px;margin:22px 0 10px}.request{background:#efeee9;padding:16px;border-radius:5px;font-family:monospace;overflow-wrap:anywhere}.request b{color:#5e4530}.statuses{display:flex;gap:20px;color:#3e6646;font-size:13px}pre{font-size:13px;line-height:1.6;background:#f8f8f5;border:1px solid #e4e2dc;border-radius:5px;padding:16px;white-space:pre-wrap;overflow-wrap:anywhere}.footnote{font-size:11px;color:#7a7265;line-height:1.7;border-top:1px solid #ddd;padding-top:18px}</style><body><article class="card" id="api-get-list"><div class="heading"><span>NOUR’S ORDER DESK / LIVE API VERIFICATION</span><strong>PASS</strong></div><h1>List orders</h1><p class="request"><b>GET</b> /api/orders</p><div class="statuses"><span>Expected HTTP 200</span><span>Actual HTTP 200</span></div><h2>Request body</h2><pre>No request body</pre><h2>Actual response body</h2><pre>[
+  {
+    "id": "demo-001",
+    "customerName": "Mira Demo",
+    "phone": "DEMO-001",
+    "productName": "Vanilla Candle",
+    "quantity": 2,
+    "unitPrice": 8,
+    "total": 16,
+    "status": "Pending"
+  },
+  {
+    "id": "demo-002",
+    "customerName": "Sami Example",
+    "phone": "DEMO-002",
+    "productName": "Cedar Candle",
+    "quantity": 1,
+    "unitPrice": 10,
+    "total": 10,
+    "status": "Preparing"
+  },
+  {
+    "id": "demo-003",
+    "customerName": "Lina Sample",
+    "phone": "DEMO-003",
+    "productName": "Mini Gift Candle",
+    "quantity": 3,
+    "unitPrice": 6,
+    "total": 18,
+    "status": "Delivered"
+  }
+]</pre><p class="footnote">Generated visual receipt from actual requests to http://127.0.0.1:3007. Source: api-results.json. This is an automated test report, not a screenshot of the Postman desktop UI. All customer data is fictional.</p></article>
+<article class="card" id="api-get-one"><div class="heading"><span>NOUR’S ORDER DESK / LIVE API VERIFICATION</span><strong>PASS</strong></div><h1>Read created order from another endpoint</h1><p class="request"><b>GET</b> /api/orders/3702d2e7-d490-46e8-9e31-81c7f666ab60</p><div class="statuses"><span>Expected HTTP 200</span><span>Actual HTTP 200</span></div><h2>Request body</h2><pre>No request body</pre><h2>Actual response body</h2><pre>{
+  "customerName": "Mira API Demo",
+  "phone": "DEMO-API-001",
+  "productName": "Vanilla Candle",
+  "quantity": 3,
+  "unitPrice": 8,
+  "id": "3702d2e7-d490-46e8-9e31-81c7f666ab60",
+  "status": "Pending",
+  "total": 24
+}</pre><p class="footnote">Generated visual receipt from actual requests to http://127.0.0.1:3007. Source: api-results.json. This is an automated test report, not a screenshot of the Postman desktop UI. All customer data is fictional.</p></article>
+<article class="card" id="api-post"><div class="heading"><span>NOUR’S ORDER DESK / LIVE API VERIFICATION</span><strong>PASS</strong></div><h1>Create trimmed order; ignore supplied id and total</h1><p class="request"><b>POST</b> /api/orders</p><div class="statuses"><span>Expected HTTP 201</span><span>Actual HTTP 201</span></div><h2>Request body</h2><pre>{
+  "customerName": "  Mira API Demo  ",
+  "phone": "  DEMO-API-001  ",
+  "productName": "  Vanilla Candle  ",
+  "quantity": 3,
+  "unitPrice": 8,
+  "id": "client-id",
+  "total": 0
+}</pre><h2>Actual response body</h2><pre>{
+  "customerName": "Mira API Demo",
+  "phone": "DEMO-API-001",
+  "productName": "Vanilla Candle",
+  "quantity": 3,
+  "unitPrice": 8,
+  "id": "3702d2e7-d490-46e8-9e31-81c7f666ab60",
+  "status": "Pending",
+  "total": 24
+}</pre><p class="footnote">Generated visual receipt from actual requests to http://127.0.0.1:3007. Source: api-results.json. This is an automated test report, not a screenshot of the Postman desktop UI. All customer data is fictional.</p></article>
+<article class="card" id="api-patch"><div class="heading"><span>NOUR’S ORDER DESK / LIVE API VERIFICATION</span><strong>PASS</strong></div><h1>Partial quantity update and $32 total</h1><p class="request"><b>PATCH</b> /api/orders/3702d2e7-d490-46e8-9e31-81c7f666ab60</p><div class="statuses"><span>Expected HTTP 200</span><span>Actual HTTP 200</span></div><h2>Request body</h2><pre>{
+  "quantity": 4
+}</pre><h2>Actual response body</h2><pre>{
+  "customerName": "Mira API Demo",
+  "phone": "DEMO-API-001",
+  "productName": "Vanilla Candle",
+  "quantity": 4,
+  "unitPrice": 8,
+  "id": "3702d2e7-d490-46e8-9e31-81c7f666ab60",
+  "status": "Pending",
+  "total": 32
+}</pre><p class="footnote">Generated visual receipt from actual requests to http://127.0.0.1:3007. Source: api-results.json. This is an automated test report, not a screenshot of the Postman desktop UI. All customer data is fictional.</p></article>
+<article class="card" id="api-delete"><div class="heading"><span>NOUR’S ORDER DESK / LIVE API VERIFICATION</span><strong>PASS</strong></div><h1>Delete accidental order with empty 204</h1><p class="request"><b>DELETE</b> /api/orders/2c39bf7d-926e-4ba8-8cd5-dbb4166e8702</p><div class="statuses"><span>Expected HTTP 204</span><span>Actual HTTP 204</span></div><h2>Request body</h2><pre>No request body</pre><h2>Actual response body</h2><pre>(empty body — 204 No Content)</pre><p class="footnote">Generated visual receipt from actual requests to http://127.0.0.1:3007. Source: api-results.json. This is an automated test report, not a screenshot of the Postman desktop UI. All customer data is fictional.</p></article>
+<article class="card" id="api-invalid"><div class="heading"><span>NOUR’S ORDER DESK / LIVE API VERIFICATION</span><strong>PASS</strong></div><h1>Reject quantity -2 atomically</h1><p class="request"><b>PATCH</b> /api/orders/3702d2e7-d490-46e8-9e31-81c7f666ab60</p><div class="statuses"><span>Expected HTTP 400</span><span>Actual HTTP 400</span></div><h2>Request body</h2><pre>{
+  "quantity": -2,
+  "status": "Preparing",
+  "customerName": "Must not save"
+}</pre><h2>Actual response body</h2><pre>{
+  "message": "quantity must be a positive safe integer (at least 1)."
+}</pre><p class="footnote">Generated visual receipt from actual requests to http://127.0.0.1:3007. Source: api-results.json. This is an automated test report, not a screenshot of the Postman desktop UI. All customer data is fictional.</p></article>
+<article class="card" id="api-not-found"><div class="heading"><span>NOUR’S ORDER DESK / LIVE API VERIFICATION</span><strong>PASS</strong></div><h1>Deleted ID returns 404</h1><p class="request"><b>GET</b> /api/orders/2c39bf7d-926e-4ba8-8cd5-dbb4166e8702</p><div class="statuses"><span>Expected HTTP 404</span><span>Actual HTTP 404</span></div><h2>Request body</h2><pre>No request body</pre><h2>Actual response body</h2><pre>{
+  "message": "Order not found. Refresh the list to see current orders."
+}</pre><p class="footnote">Generated visual receipt from actual requests to http://127.0.0.1:3007. Source: api-results.json. This is an automated test report, not a screenshot of the Postman desktop UI. All customer data is fictional.</p></article></body></html>

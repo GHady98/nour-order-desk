@@ -1,0 +1,106 @@
+{
+  "status": "PASS",
+  "baselineCount": 3,
+  "acceptance": [
+    {
+      "step": "3 Vanilla candles at $8",
+      "status": 201,
+      "total": 24,
+      "orderId": "945c2eea-a4e0-48e3-9ff9-e18fc563afe7"
+    },
+    {
+      "step": "Quantity 4",
+      "total": 32
+    },
+    {
+      "step": "Delivered",
+      "pending": 1,
+      "delivered": 2
+    },
+    {
+      "step": "Invalid quantity -2",
+      "status": 400,
+      "unchanged": true
+    },
+    {
+      "step": "Forged total and ID",
+      "status": 200,
+      "total": 32,
+      "idUnchanged": true
+    },
+    {
+      "step": "Delete accidental order",
+      "status": 204,
+      "body": "",
+      "remainingTotal": 4,
+      "readAfterDelete": 404
+    }
+  ],
+  "checks": [
+    "initial loading",
+    "no duplicate POST",
+    "GET detail",
+    "create/edit/status through API",
+    "summary counts",
+    "atomic 400",
+    "server ID/total protection",
+    "confirmed 204 delete",
+    "deleted 404",
+    "preserved rejected form",
+    "list error/retry simulation",
+    "actual empty store",
+    "360px layout",
+    "keyboard and native-dialog focus trap"
+  ],
+  "pageErrors": [],
+  "requests": [
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:3007/api/orders"
+    },
+    {
+      "method": "POST",
+      "url": "http://127.0.0.1:3007/api/orders"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:3007/api/orders/945c2eea-a4e0-48e3-9ff9-e18fc563afe7"
+    },
+    {
+      "method": "PATCH",
+      "url": "http://127.0.0.1:3007/api/orders/945c2eea-a4e0-48e3-9ff9-e18fc563afe7"
+    },
+    {
+      "method": "PATCH",
+      "url": "http://127.0.0.1:3007/api/orders/945c2eea-a4e0-48e3-9ff9-e18fc563afe7"
+    },
+    {
+      "method": "POST",
+      "url": "http://127.0.0.1:3007/api/orders"
+    },
+    {
+      "method": "DELETE",
+      "url": "http://127.0.0.1:3007/api/orders/973dc0a5-05ac-4e82-b6fe-81e373a9bedb"
+    },
+    {
+      "method": "POST",
+      "url": "http://127.0.0.1:3007/api/orders"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:3007/api/orders"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:3007/api/orders"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:3007/api/orders"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:3007/api/orders"
+    }
+  ]
+}

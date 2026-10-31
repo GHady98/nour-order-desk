@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "markerId": "179685c3-3c9e-4e13-bce7-6a0882e26643",
+  "afterRestartStatus": 404,
+  "restoredSeedIds": [
+    "demo-001",
+    "demo-002",
+    "demo-003"
+  ]
+}

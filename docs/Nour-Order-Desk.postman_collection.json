@@ -1,0 +1,339 @@
+{
+  "info": {
+    "name": "Nour Order Desk - Assignment 4",
+    "description": "Local fictional-data tests. Create a disposable record, verify the acceptance sequence, then delete it. Start the app locally before running.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://127.0.0.1:3007" },
+    { "key": "orderId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "List orders",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/orders" },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 200 array', function () { pm.response.to.have.status(200); pm.expect(pm.response.json()).to.be.an('array'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create disposable order - server total 24 and Pending",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/orders",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"customerName\":\"Postman Demo\",\"phone\":\"DEMO-POSTMAN\",\"productName\":\"Vanilla Candle\",\"quantity\":3,\"unitPrice\":8,\"id\":\"client-id\",\"total\":0}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 201', function () { pm.response.to.have.status(201); });",
+              "const order = pm.response.json(); pm.collectionVariables.set('orderId', order.id);",
+              "pm.test('Server-owned fields', function () { pm.expect(order.id).not.to.eql('client-id'); pm.expect(order.total).to.eql(24); pm.expect(order.status).to.eql('Pending'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Read order from shared store",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/orders/{{orderId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 200 same ID', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('orderId')); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PATCH quantity only - total 32",
+      "request": {
+        "method": "PATCH",
+        "url": "{{baseUrl}}/api/orders/{{orderId}}",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"quantity\":4}" }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 200 preserves omitted fields', function () { pm.response.to.have.status(200); const order = pm.response.json(); pm.expect(order.total).to.eql(32); pm.expect(order.customerName).to.eql('Postman Demo'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Deliver order",
+      "request": {
+        "method": "PATCH",
+        "url": "{{baseUrl}}/api/orders/{{orderId}}",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"status\":\"Delivered\"}" }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 200 Delivered', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().status).to.eql('Delivered'); });",
+              "pm.collectionVariables.set('beforeInvalid', JSON.stringify(pm.response.json()));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject negative quantity without partial change",
+      "request": {
+        "method": "PATCH",
+        "url": "{{baseUrl}}/api/orders/{{orderId}}",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"quantity\":-2,\"status\":\"Preparing\"}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 400 useful error', function () { pm.response.to.have.status(400); pm.expect(pm.response.json().message).to.be.a('string'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Stored record unchanged after rejection",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/orders/{{orderId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Atomic rejection', function () { pm.response.to.have.status(200); pm.expect(pm.response.json()).to.deep.eql(JSON.parse(pm.collectionVariables.get('beforeInvalid'))); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ignore client id and total on PATCH",
+      "request": {
+        "method": "PATCH",
+        "url": "{{baseUrl}}/api/orders/{{orderId}}",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"quantity\":4,\"id\":\"client-id\",\"total\":0}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Server still owns ID and total', function () { pm.response.to.have.status(200); const order = pm.response.json(); pm.expect(order.id).to.eql(pm.collectionVariables.get('orderId')); pm.expect(order.total).to.eql(32); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Missing customer name",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/orders",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"phone\":\"DEMO\",\"productName\":\"Vanilla Candle\",\"quantity\":3,\"unitPrice\":8}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Blank phone",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/orders",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"customerName\":\"Postman Demo\",\"phone\":\"  \",\"productName\":\"Vanilla Candle\",\"quantity\":3,\"unitPrice\":8}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Unsupported Flying status",
+      "request": {
+        "method": "PATCH",
+        "url": "{{baseUrl}}/api/orders/{{orderId}}",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"status\":\"Flying\"}" }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Malformed JSON is 400, not 500",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/orders",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"customerName\":" }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 400 malformed JSON', function () { pm.response.to.have.status(400); pm.expect(pm.response.json().message).to.include('Malformed JSON'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Empty PATCH is rejected",
+      "request": {
+        "method": "PATCH",
+        "url": "{{baseUrl}}/api/orders/{{orderId}}",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{}" }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Delete disposable order",
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/api/orders/{{orderId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 204 no body', function () { pm.response.to.have.status(204); pm.expect(pm.response.text()).to.eql(''); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Read deleted ID",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/orders/{{orderId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 404', function () { pm.response.to.have.status(404); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Update deleted ID",
+      "request": {
+        "method": "PATCH",
+        "url": "{{baseUrl}}/api/orders/{{orderId}}",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"quantity\":2}" }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 404', function () { pm.response.to.have.status(404); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Delete unknown ID",
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/api/orders/not-an-order"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 404', function () { pm.response.to.have.status(404); });"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,5703 @@
+{
+  "collection": {
+    "item": [
+      {
+        "id": "02efa3c9-92ad-48ea-9701-e37ab61afc89",
+        "name": "List orders",
+        "request": {
+          "url": {
+            "path": [
+              "api",
+              "orders"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "method": "GET"
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "5ca3f30e-57e5-407b-b5b2-5ac98edda3b5",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('HTTP 200 array', function () { pm.response.to.have.status(200); pm.expect(pm.response.json()).to.be.an('array'); });"
+              ],
+              "_lastExecutionId": "2694644c-b5aa-4eb0-badc-d3b1cfb24854"
+            }
+          }
+        ]
+      },
+      {
+        "id": "ffc74d9b-1e0b-4a99-b988-fd61926ac695",
+        "name": "Create disposable order - server total 24 and Pending",
+        "request": {
+          "url": {
+            "path": [
+              "api",
+              "orders"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\"customerName\":\"Postman Demo\",\"phone\":\"DEMO-POSTMAN\",\"productName\":\"Vanilla Candle\",\"quantity\":3,\"unitPrice\":8,\"id\":\"client-id\",\"total\":0}"
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "5c042ba1-b490-4dd2-ab5d-b3325358ef95",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('HTTP 201', function () { pm.response.to.have.status(201); });",
+                "const order = pm.response.json(); pm.collectionVariables.set('orderId', order.id);",
+                "pm.test('Server-owned fields', function () { pm.expect(order.id).not.to.eql('client-id'); pm.expect(order.total).to.eql(24); pm.expect(order.status).to.eql('Pending'); });"
+              ],
+              "_lastExecutionId": "45d8ec9d-b77b-4bce-a52a-f58fa1dd4120"
+            }
+          }
+        ]
+      },
+      {
+        "id": "00aeed50-36af-4d31-b723-b0bd161b32a7",
+        "name": "Read order from shared store",
+        "request": {
+          "url": {
+            "path": [
+              "api",
+              "orders",
+              "{{orderId}}"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "method": "GET"
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "ddceb68a-3607-4583-8cc7-748fdd7de69b",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('HTTP 200 same ID', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('orderId')); });"
+              ],
+              "_lastExecutionId": "d39b7fa0-8a16-4980-a4c3-450560d50eca"
+            }
+          }
+        ]
+      },
+      {
+        "id": "921fba47-e245-41ad-8a05-1b2b5850a0d0",
+        "name": "PATCH quantity only - total 32",
+        "request": {
+          "url": {
+            "path": [
+              "api",
+              "orders",
+              "{{orderId}}"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "method": "PATCH",
+          "body": {
+            "mode": "raw",
+            "raw": "{\"quantity\":4}"
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "53d17459-aa93-47ba-8783-c6398bceb557",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('HTTP 200 preserves omitted fields', function () { pm.response.to.have.status(200); const order = pm.response.json(); pm.expect(order.total).to.eql(32); pm.expect(order.customerName).to.eql('Postman Demo'); });"
+              ],
+              "_lastExecutionId": "6b04f71e-a517-4510-8ccc-f3150a176697"
+            }
+          }
+        ]
+      },
+      {
+        "id": "773af42a-0860-4b2f-875a-c48187cf251c",
+        "name": "Deliver order",
+        "request": {
+          "url": {
+            "path": [
+              "api",
+              "orders",
+              "{{orderId}}"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "method": "PATCH",
+          "body": {
+            "mode": "raw",
+            "raw": "{\"status\":\"Delivered\"}"
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "25860d00-5905-4d3e-9fe6-93770b35def5",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('HTTP 200 Delivered', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().status).to.eql('Delivered'); });",
+                "pm.collectionVariables.set('beforeInvalid', JSON.stringify(pm.response.json()));"
+              ],
+              "_lastExecutionId": "0e083087-1f24-4c52-8caa-35d0c0db7276"
+            }
+          }
+        ]
+      },
+      {
+        "id": "da13500c-f470-484b-b3a4-980c5ae8d40c",
+        "name": "Reject negative quantity without partial change",
+        "request": {
+          "url": {
+            "path": [
+              "api",
+              "orders",
+              "{{orderId}}"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "method": "PATCH",
+          "body": {
+            "mode": "raw",
+            "raw": "{\"quantity\":-2,\"status\":\"Preparing\"}"
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "8e50ca3b-917d-4894-b6f0-a6e6545a9d17",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('HTTP 400 useful error', function () { pm.response.to.have.status(400); pm.expect(pm.response.json().message).to.be.a('string'); });"
+              ],
+              "_lastExecutionId": "bf9ef3a6-3a89-46d7-9d70-b550ea8b0f18"
+            }
+          }
+        ]
+      },
+      {
+        "id": "bdecb055-7034-468a-be25-d337ba3ac47a",
+        "name": "Stored record unchanged after rejection",
+        "request": {
+          "url": {
+            "path": [
+              "api",
+              "orders",
+              "{{orderId}}"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "method": "GET"
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "d1592dc8-8a58-43ac-adb0-9caad4e66fa8",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Atomic rejection', function () { pm.response.to.have.status(200); pm.expect(pm.response.json()).to.deep.eql(JSON.parse(pm.collectionVariables.get('beforeInvalid'))); });"
+              ],
+              "_lastExecutionId": "a9426d71-3ac1-4789-8f08-e23029d9fb77"
+            }
+          }
+        ]
+      },
+      {
+        "id": "c514a1f8-109e-4d7f-8346-eb81098bf7b2",
+        "name": "Ignore client id and total on PATCH",
+        "request": {
+          "url": {
+            "path": [
+              "api",
+              "orders",
+              "{{orderId}}"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "method": "PATCH",
+          "body": {
+            "mode": "raw",
+            "raw": "{\"quantity\":4,\"id\":\"client-id\",\"total\":0}"
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "c7a59578-1505-4845-a68d-1f1e4f0781b8",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Server still owns ID and total', function () { pm.response.to.have.status(200); const order = pm.response.json(); pm.expect(order.id).to.eql(pm.collectionVariables.get('orderId')); pm.expect(order.total).to.eql(32); });"
+              ],
+              "_lastExecutionId": "c00b48e9-a6b0-4173-8931-8efece67a84f"
+            }
+          }
+        ]
+      },
+      {
+        "id": "d43a5e69-d390-4439-bb72-30647b02161b",
+        "name": "Missing customer name",
+        "request": {
+          "url": {
+            "path": [
+              "api",
+              "orders"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\"phone\":\"DEMO\",\"productName\":\"Vanilla Candle\",\"quantity\":3,\"unitPrice\":8}"
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "e8ec305f-3e47-4042-8096-13abd0aa8ccb",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });"
+              ],
+              "_lastExecutionId": "7d3fae56-6eb2-4a5c-8402-e39f47ed24ae"
+            }
+          }
+        ]
+      },
+      {
+        "id": "217060f1-89a0-4556-b755-278c0463f04b",
+        "name": "Blank phone",
+        "request": {
+          "url": {
+            "path": [
+              "api",
+              "orders"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\"customerName\":\"Postman Demo\",\"phone\":\"  \",\"productName\":\"Vanilla Candle\",\"quantity\":3,\"unitPrice\":8}"
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "472983f0-0dc1-4304-90ca-3bc4a6571e42",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });"
+              ],
+              "_lastExecutionId": "ccade5ac-483a-4ed4-81ca-eae1c1a2abe9"
+            }
+          }
+        ]
+      },
+      {
+        "id": "0b154699-e1bd-4d43-86cd-cab2ca3d8743",
+        "name": "Unsupported Flying status",
+        "request": {
+          "url": {
+            "path": [
+              "api",
+              "orders",
+              "{{orderId}}"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "method": "PATCH",
+          "body": {
+            "mode": "raw",
+            "raw": "{\"status\":\"Flying\"}"
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "12ee8642-bedb-433b-90b6-1c16eedf5cde",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });"
+              ],
+              "_lastExecutionId": "5aa3ff92-a8b4-4397-9639-9deb434bf07a"
+            }
+          }
+        ]
+      },
+      {
+        "id": "409a76e0-ba30-4271-9a4b-e3525f8ce8f4",
+        "name": "Malformed JSON is 400, not 500",
+        "request": {
+          "url": {
+            "path": [
+              "api",
+              "orders"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\"customerName\":"
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "31712d52-6b9d-40fb-b1af-93a7dba480dc",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('HTTP 400 malformed JSON', function () { pm.response.to.have.status(400); pm.expect(pm.response.json().message).to.include('Malformed JSON'); });"
+              ],
+              "_lastExecutionId": "41075284-7490-4682-84ab-80386e66747f"
+            }
+          }
+        ]
+      },
+      {
+        "id": "c90d2ce8-b0cf-4986-b1ca-32a78adb1f1a",
+        "name": "Empty PATCH is rejected",
+        "request": {
+          "url": {
+            "path": [
+              "api",
+              "orders",
+              "{{orderId}}"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "method": "PATCH",
+          "body": {
+            "mode": "raw",
+            "raw": "{}"
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "74a62aa0-b0b7-483c-9d03-51265de3ead4",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });"
+              ],
+              "_lastExecutionId": "c57b124a-89d7-4618-9138-49d97a8499db"
+            }
+          }
+        ]
+      },
+      {
+        "id": "013ffce0-0f57-4d9f-ae4c-de2fb3f2525a",
+        "name": "Delete disposable order",
+        "request": {
+          "url": {
+            "path": [
+              "api",
+              "orders",
+              "{{orderId}}"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "method": "DELETE"
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "0fb50bab-8284-4142-9c90-07dd69a45a2d",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('HTTP 204 no body', function () { pm.response.to.have.status(204); pm.expect(pm.response.text()).to.eql(''); });"
+              ],
+              "_lastExecutionId": "732a4828-da49-4faa-8d53-fa73f97c7fb8"
+            }
+          }
+        ]
+      },
+      {
+        "id": "825cb1e2-5ad2-4126-9f2f-be0fa2e55aa3",
+        "name": "Read deleted ID",
+        "request": {
+          "url": {
+            "path": [
+              "api",
+              "orders",
+              "{{orderId}}"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "method": "GET"
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "792d1815-d8e9-463d-a0f0-caafe0fb1f48",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('HTTP 404', function () { pm.response.to.have.status(404); });"
+              ],
+              "_lastExecutionId": "50b22af6-6773-4979-9667-b822a6181b37"
+            }
+          }
+        ]
+      },
+      {
+        "id": "0dfc8c73-ef99-4a51-83d1-0ee0e047b98b",
+        "name": "Update deleted ID",
+        "request": {
+          "url": {
+            "path": [
+              "api",
+              "orders",
+              "{{orderId}}"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "method": "PATCH",
+          "body": {
+            "mode": "raw",
+            "raw": "{\"quantity\":2}"
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "9e2c06cc-4659-4e7c-b220-ca7a04fcb735",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('HTTP 404', function () { pm.response.to.have.status(404); });"
+              ],
+              "_lastExecutionId": "31fbc383-74cd-4d35-a233-40b8278ac67c"
+            }
+          }
+        ]
+      },
+      {
+        "id": "6f4e8045-4cb7-4ef6-b4c6-57bc7040b50f",
+        "name": "Delete unknown ID",
+        "request": {
+          "url": {
+            "path": [
+              "api",
+              "orders",
+              "not-an-order"
+            ],
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "method": "DELETE"
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "3316591f-e904-4659-93b6-fb2d2cfc8861",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('HTTP 404', function () { pm.response.to.have.status(404); });"
+              ],
+              "_lastExecutionId": "d41743e4-afca-43fc-a3c4-70e8875e6aca"
+            }
+          }
+        ]
+      }
+    ],
+    "event": [],
+    "variable": [
+      {
+        "type": "any",
+        "value": "http://127.0.0.1:3007",
+        "key": "baseUrl"
+      },
+      {
+        "type": "any",
+        "value": "",
+        "key": "orderId"
+      }
+    ],
+    "info": {
+      "_postman_id": "c50e4bf0-1856-4083-8474-2cde5ebf8752",
+      "name": "Nour Order Desk - Assignment 4",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+      "description": {
+        "content": "Local fictional-data tests. Create a disposable record, verify the acceptance sequence, then delete it. Start the app locally before running.",
+        "type": "text/plain"
+      }
+    }
+  },
+  "environment": {
+    "id": "ec631d4a-f315-4e6d-a344-6e46106618c6",
+    "values": []
+  },
+  "globals": {
+    "id": "5c8cc520-f98a-4db5-ab1f-44312042f37b",
+    "values": []
+  },
+  "run": {
+    "stats": {
+      "iterations": {
+        "total": 1,
+        "pending": 0,
+        "failed": 0
+      },
+      "items": {
+        "total": 17,
+        "pending": 0,
+        "failed": 0
+      },
+      "scripts": {
+        "total": 17,
+        "pending": 0,
+        "failed": 0
+      },
+      "prerequests": {
+        "total": 17,
+        "pending": 0,
+        "failed": 0
+      },
+      "requests": {
+        "total": 17,
+        "pending": 0,
+        "failed": 0
+      },
+      "tests": {
+        "total": 17,
+        "pending": 0,
+        "failed": 0
+      },
+      "assertions": {
+        "total": 18,
+        "pending": 0,
+        "failed": 0
+      },
+      "testScripts": {
+        "total": 17,
+        "pending": 0,
+        "failed": 0
+      },
+      "prerequestScripts": {
+        "total": 0,
+        "pending": 0,
+        "failed": 0
+      }
+    },
+    "timings": {
+      "responseAverage": 9.235294117647058,
+      "responseMin": 4,
+      "responseMax": 53,
+      "responseSd": 11.058823529411764,
+      "dnsAverage": 0,
+      "dnsMin": 0,
+      "dnsMax": 0,
+      "dnsSd": 0,
+      "firstByteAverage": 0,
+      "firstByteMin": 0,
+      "firstByteMax": 0,
+      "firstByteSd": 0,
+      "started": 1793460890952,
+      "completed": 1793460892184
+    },
+    "executions": [
+      {
+        "cursor": {
+          "position": 0,
+          "iteration": 0,
+          "length": 17,
+          "cycles": 1,
+          "empty": false,
+          "eof": false,
+          "bof": true,
+          "cr": false,
+          "ref": "1af01b94-9ab3-44fb-8e06-dab4a3664123",
+          "httpRequestId": "4b4b68b4-9bba-4296-8b7b-bc565304b4ae"
+        },
+        "item": {
+          "id": "02efa3c9-92ad-48ea-9701-e37ab61afc89",
+          "name": "List orders",
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "orders"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "5ca3f30e-57e5-407b-b5b2-5ac98edda3b5",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200 array', function () { pm.response.to.have.status(200); pm.expect(pm.response.json()).to.be.an('array'); });"
+                ],
+                "_lastExecutionId": "2694644c-b5aa-4eb0-badc-d3b1cfb24854"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3007",
+            "path": [
+              "api",
+              "orders"
+            ],
+            "host": [
+              "127",
+              "0",
+              "0",
+              "1"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "e2b29781-37cf-465c-b773-76bdac1f176c",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "127.0.0.1:3007",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "e667bd45-ab9c-4d03-97ab-ed31dbe5b9a4",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "vary",
+              "value": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            {
+              "key": "cache-control",
+              "value": "no-store"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "Date",
+              "value": "Sat, 31 Oct 2026 15:34:50 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              91,
+              123,
+              34,
+              105,
+              100,
+              34,
+              58,
+              34,
+              100,
+              101,
+              109,
+              111,
+              45,
+              48,
+              48,
+              49,
+              34,
+              44,
+              34,
+              99,
+              117,
+              115,
+              116,
+              111,
+              109,
+              101,
+              114,
+              78,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              77,
+              105,
+              114,
+              97,
+              32,
+              68,
+              101,
+              109,
+              111,
+              34,
+              44,
+              34,
+              112,
+              104,
+              111,
+              110,
+              101,
+              34,
+              58,
+              34,
+              68,
+              69,
+              77,
+              79,
+              45,
+              48,
+              48,
+              49,
+              34,
+              44,
+              34,
+              112,
+              114,
+              111,
+              100,
+              117,
+              99,
+              116,
+              78,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              86,
+              97,
+              110,
+              105,
+              108,
+              108,
+              97,
+              32,
+              67,
+              97,
+              110,
+              100,
+              108,
+              101,
+              34,
+              44,
+              34,
+              113,
+              117,
+              97,
+              110,
+              116,
+              105,
+              116,
+              121,
+              34,
+              58,
+              50,
+              44,
+              34,
+              117,
+              110,
+              105,
+              116,
+              80,
+              114,
+              105,
+              99,
+              101,
+              34,
+              58,
+              56,
+              44,
+              34,
+              116,
+              111,
+              116,
+              97,
+              108,
+              34,
+              58,
+              49,
+              54,
+              44,
+              34,
+              115,
+              116,
+              97,
+              116,
+              117,
+              115,
+              34,
+              58,
+              34,
+              80,
+              101,
+              110,
+              100,
+              105,
+              110,
+              103,
+              34,
+              125,
+              44,
+              123,
+              34,
+              105,
+              100,
+              34,
+              58,
+              34,
+              100,
+              101,
+              109,
+              111,
+              45,
+              48,
+              48,
+              50,
+              34,
+              44,
+              34,
+              99,
+              117,
+              115,
+              116,
+              111,
+              109,
+              101,
+              114,
+              78,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              83,
+              97,
+              109,
+              105,
+              32,
+              69,
+              120,
+              97,
+              109,
+              112,
+              108,
+              101,
+              34,
+              44,
+              34,
+              112,
+              104,
+              111,
+              110,
+              101,
+              34,
+              58,
+              34,
+              68,
+              69,
+              77,
+              79,
+              45,
+              48,
+              48,
+              50,
+              34,
+              44,
+              34,
+              112,
+              114,
+              111,
+              100,
+              117,
+              99,
+              116,
+              78,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              67,
+              101,
+              100,
+              97,
+              114,
+              32,
+              67,
+              97,
+              110,
+              100,
+              108,
+              101,
+              34,
+              44,
+              34,
+              113,
+              117,
+              97,
+              110,
+              116,
+              105,
+              116,
+              121,
+              34,
+              58,
+              49,
+              44,
+              34,
+              117,
+              110,
+              105,
+              116,
+              80,
+              114,
+              105,
+              99,
+              101,
+              34,
+              58,
+              49,
+              48,
+              44,
+              34,
+              116,
+              111,
+              116,
+              97,
+              108,
+              34,
+              58,
+              49,
+              48,
+              44,
+              34,
+              115,
+              116,
+              97,
+              116,
+              117,
+              115,
+              34,
+              58,
+              34,
+              80,
+              114,
+              101,
+              112,
+              97,
+              114,
+              105,
+              110,
+              103,
+              34,
+              125,
+              44,
+              123,
+              34,
+              105,
+              100,
+              34,
+              58,
+              34,
+              100,
+              101,
+              109,
+              111,
+              45,
+              48,
+              48,
+              51,
+              34,
+              44,
+              34,
+              99,
+              117,
+              115,
+              116,
+              111,
+              109,
+              101,
+              114,
+              78,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              76,
+              105,
+              110,
+              97,
+              32,
+              83,
+              97,
+              109,
+              112,
+              108,
+              101,
+              34,
+              44,
+              34,
+              112,
+              104,
+              111,
+              110,
+              101,
+              34,
+              58,
+              34,
+              68,
+              69,
+              77,
+              79,
+              45,
+              48,
+              48,
+              51,
+              34,
+              44,
+              34,
+              112,
+              114,
+              111,
+              100,
+              117,
+              99,
+              116,
+              78,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              77,
+              105,
+              110,
+              105,
+              32,
+              71,
+              105,
+              102,
+              116,
+              32,
+              67,
+              97,
+              110,
+              100,
+              108,
+              101,
+              34,
+              44,
+              34,
+              113,
+              117,
+              97,
+              110,
+              116,
+              105,
+              116,
+              121,
+              34,
+              58,
+              51,
+              44,
+              34,
+              117,
+              110,
+              105,
+              116,
+              80,
+              114,
+              105,
+              99,
+              101,
+              34,
+              58,
+              54,
+              44,
+              34,
+              116,
+              111,
+              116,
+              97,
+              108,
+              34,
+              58,
+              49,
+              56,
+              44,
+              34,
+              115,
+              116,
+              97,
+              116,
+              117,
+              115,
+              34,
+              58,
+              34,
+              68,
+              101,
+              108,
+              105,
+              118,
+              101,
+              114,
+              101,
+              100,
+              34,
+              125,
+              93
+            ]
+          },
+          "cookie": [],
+          "responseTime": 53,
+          "responseSize": 467
+        },
+        "id": "02efa3c9-92ad-48ea-9701-e37ab61afc89",
+        "assertions": [
+          {
+            "assertion": "HTTP 200 array",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "7f9f4d20-920b-4710-945d-26ca701f0238",
+          "length": 17,
+          "cycles": 1,
+          "position": 1,
+          "iteration": 0,
+          "httpRequestId": "123e1a39-b013-4e9c-a00a-1b0f84eaa7aa"
+        },
+        "item": {
+          "id": "ffc74d9b-1e0b-4a99-b988-fd61926ac695",
+          "name": "Create disposable order - server total 24 and Pending",
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "orders"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"customerName\":\"Postman Demo\",\"phone\":\"DEMO-POSTMAN\",\"productName\":\"Vanilla Candle\",\"quantity\":3,\"unitPrice\":8,\"id\":\"client-id\",\"total\":0}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "5c042ba1-b490-4dd2-ab5d-b3325358ef95",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', function () { pm.response.to.have.status(201); });",
+                  "const order = pm.response.json(); pm.collectionVariables.set('orderId', order.id);",
+                  "pm.test('Server-owned fields', function () { pm.expect(order.id).not.to.eql('client-id'); pm.expect(order.total).to.eql(24); pm.expect(order.status).to.eql('Pending'); });"
+                ],
+                "_lastExecutionId": "45d8ec9d-b77b-4bce-a52a-f58fa1dd4120"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3007",
+            "path": [
+              "api",
+              "orders"
+            ],
+            "host": [
+              "127",
+              "0",
+              "0",
+              "1"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "f46a0d26-39f8-4959-8f10-7ec66dd80fe1",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "127.0.0.1:3007",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "139",
+              "system": true
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\"customerName\":\"Postman Demo\",\"phone\":\"DEMO-POSTMAN\",\"productName\":\"Vanilla Candle\",\"quantity\":3,\"unitPrice\":8,\"id\":\"client-id\",\"total\":0}"
+          }
+        },
+        "response": {
+          "id": "9dad21c7-0309-4273-8d03-5b53121a364c",
+          "status": "Created",
+          "code": 201,
+          "header": [
+            {
+              "key": "vary",
+              "value": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            {
+              "key": "cache-control",
+              "value": "no-store"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "Date",
+              "value": "Sat, 31 Oct 2026 15:34:51 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              99,
+              117,
+              115,
+              116,
+              111,
+              109,
+              101,
+              114,
+              78,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              80,
+              111,
+              115,
+              116,
+              109,
+              97,
+              110,
+              32,
+              68,
+              101,
+              109,
+              111,
+              34,
+              44,
+              34,
+              112,
+              104,
+              111,
+              110,
+              101,
+              34,
+              58,
+              34,
+              68,
+              69,
+              77,
+              79,
+              45,
+              80,
+              79,
+              83,
+              84,
+              77,
+              65,
+              78,
+              34,
+              44,
+              34,
+              112,
+              114,
+              111,
+              100,
+              117,
+              99,
+              116,
+              78,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              86,
+              97,
+              110,
+              105,
+              108,
+              108,
+              97,
+              32,
+              67,
+              97,
+              110,
+              100,
+              108,
+              101,
+              34,
+              44,
+              34,
+              113,
+              117,
+              97,
+              110,
+              116,
+              105,
+              116,
+              121,
+              34,
+              58,
+              51,
+              44,
+              34,
+              117,
+              110,
+              105,
+              116,
+              80,
+              114,
+              105,
+              99,
+              101,
+              34,
+              58,
+              56,
+              44,
+              34,
+              105,
+              100,
+              34,
+              58,
+              34,
+              48,
+              100,
+              53,
+              54,
+              50,
+              102,
+              99,
+              51,
+              45,
+              100,
+              99,
+              52,
+              99,
+              45,
+              52,
+              55,
+              49,
+              101,
+              45,
+              57,
+              51,
+              52,
+              102,
+              45,
+              100,
+              52,
+              97,
+              50,
+              99,
+              54,
+              99,
+              50,
+              52,
+              56,
+              53,
+              57,
+              34,
+              44,
+              34,
+              115,
+              116,
+              97,
+              116,
+              117,
+              115,
+              34,
+              58,
+              34,
+              80,
+              101,
+              110,
+              100,
+              105,
+              110,
+              103,
+              34,
+              44,
+              34,
+              116,
+              111,
+              116,
+              97,
+              108,
+              34,
+              58,
+              50,
+              52,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 11,
+          "responseSize": 186
+        },
+        "id": "ffc74d9b-1e0b-4a99-b988-fd61926ac695",
+        "assertions": [
+          {
+            "assertion": "HTTP 201",
+            "skipped": false
+          },
+          {
+            "assertion": "Server-owned fields",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "c480adcd-ca16-4585-a8a6-064e236e33e5",
+          "length": 17,
+          "cycles": 1,
+          "position": 2,
+          "iteration": 0,
+          "httpRequestId": "b8917e20-7d8d-46a8-9d1d-3ba015e5bd4d"
+        },
+        "item": {
+          "id": "00aeed50-36af-4d31-b723-b0bd161b32a7",
+          "name": "Read order from shared store",
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "orders",
+                "{{orderId}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "ddceb68a-3607-4583-8cc7-748fdd7de69b",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200 same ID', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('orderId')); });"
+                ],
+                "_lastExecutionId": "d39b7fa0-8a16-4980-a4c3-450560d50eca"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3007",
+            "path": [
+              "api",
+              "orders",
+              "0d562fc3-dc4c-471e-934f-d4a2c6c24859"
+            ],
+            "host": [
+              "127",
+              "0",
+              "0",
+              "1"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "a007c514-bc6f-4955-a098-7cfdfe55183a",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "127.0.0.1:3007",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "d9096667-a43f-41b7-95d8-c7d479a5188b",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "vary",
+              "value": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            {
+              "key": "cache-control",
+              "value": "no-store"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "Date",
+              "value": "Sat, 31 Oct 2026 15:34:51 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              99,
+              117,
+              115,
+              116,
+              111,
+              109,
+              101,
+              114,
+              78,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              80,
+              111,
+              115,
+              116,
+              109,
+              97,
+              110,
+              32,
+              68,
+              101,
+              109,
+              111,
+              34,
+              44,
+              34,
+              112,
+              104,
+              111,
+              110,
+              101,
+              34,
+              58,
+              34,
+              68,
+              69,
+              77,
+              79,
+              45,
+              80,
+              79,
+              83,
+              84,
+              77,
+              65,
+              78,
+              34,
+              44,
+              34,
+              112,
+              114,
+              111,
+              100,
+              117,
+              99,
+              116,
+              78,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              86,
+              97,
+              110,
+              105,
+              108,
+              108,
+              97,
+              32,
+              67,
+              97,
+              110,
+              100,
+              108,
+              101,
+              34,
+              44,
+              34,
+              113,
+              117,
+              97,
+              110,
+              116,
+              105,
+              116,
+              121,
+              34,
+              58,
+              51,
+              44,
+              34,
+              117,
+              110,
+              105,
+              116,
+              80,
+              114,
+              105,
+              99,
+              101,
+              34,
+              58,
+              56,
+              44,
+              34,
+              105,
+              100,
+              34,
+              58,
+              34,
+              48,
+              100,
+              53,
+              54,
+              50,
+              102,
+              99,
+              51,
+              45,
+              100,
+              99,
+              52,
+              99,
+              45,
+              52,
+              55,
+              49,
+              101,
+              45,
+              57,
+              51,
+              52,
+              102,
+              45,
+              100,
+              52,
+              97,
+              50,
+              99,
+              54,
+              99,
+              50,
+              52,
+              56,
+              53,
+              57,
+              34,
+              44,
+              34,
+              115,
+              116,
+              97,
+              116,
+              117,
+              115,
+              34,
+              58,
+              34,
+              80,
+              101,
+              110,
+              100,
+              105,
+              110,
+              103,
+              34,
+              44,
+              34,
+              116,
+              111,
+              116,
+              97,
+              108,
+              34,
+              58,
+              50,
+              52,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 6,
+          "responseSize": 186
+        },
+        "id": "00aeed50-36af-4d31-b723-b0bd161b32a7",
+        "assertions": [
+          {
+            "assertion": "HTTP 200 same ID",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "c091c68a-7a25-436f-b21a-e8e7d385eedb",
+          "length": 17,
+          "cycles": 1,
+          "position": 3,
+          "iteration": 0,
+          "httpRequestId": "abb1bc73-1c65-40b5-bb8d-f64e69deb68d"
+        },
+        "item": {
+          "id": "921fba47-e245-41ad-8a05-1b2b5850a0d0",
+          "name": "PATCH quantity only - total 32",
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "orders",
+                "{{orderId}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "PATCH",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"quantity\":4}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "53d17459-aa93-47ba-8783-c6398bceb557",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200 preserves omitted fields', function () { pm.response.to.have.status(200); const order = pm.response.json(); pm.expect(order.total).to.eql(32); pm.expect(order.customerName).to.eql('Postman Demo'); });"
+                ],
+                "_lastExecutionId": "6b04f71e-a517-4510-8ccc-f3150a176697"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3007",
+            "path": [
+              "api",
+              "orders",
+              "0d562fc3-dc4c-471e-934f-d4a2c6c24859"
+            ],
+            "host": [
+              "127",
+              "0",
+              "0",
+              "1"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "7b6d2cc0-4fd1-42c2-9394-a2bd648b1148",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "127.0.0.1:3007",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "14",
+              "system": true
+            }
+          ],
+          "method": "PATCH",
+          "body": {
+            "mode": "raw",
+            "raw": "{\"quantity\":4}"
+          }
+        },
+        "response": {
+          "id": "9acf50ef-8e4b-4488-89f1-82b4962b1fed",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "vary",
+              "value": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            {
+              "key": "cache-control",
+              "value": "no-store"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "Date",
+              "value": "Sat, 31 Oct 2026 15:34:51 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              99,
+              117,
+              115,
+              116,
+              111,
+              109,
+              101,
+              114,
+              78,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              80,
+              111,
+              115,
+              116,
+              109,
+              97,
+              110,
+              32,
+              68,
+              101,
+              109,
+              111,
+              34,
+              44,
+              34,
+              112,
+              104,
+              111,
+              110,
+              101,
+              34,
+              58,
+              34,
+              68,
+              69,
+              77,
+              79,
+              45,
+              80,
+              79,
+              83,
+              84,
+              77,
+              65,
+              78,
+              34,
+              44,
+              34,
+              112,
+              114,
+              111,
+              100,
+              117,
+              99,
+              116,
+              78,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              86,
+              97,
+              110,
+              105,
+              108,
+              108,
+              97,
+              32,
+              67,
+              97,
+              110,
+              100,
+              108,
+              101,
+              34,
+              44,
+              34,
+              113,
+              117,
+              97,
+              110,
+              116,
+              105,
+              116,
+              121,
+              34,
+              58,
+              52,
+              44,
+              34,
+              117,
+              110,
+              105,
+              116,
+              80,
+              114,
+              105,
+              99,
+              101,
+              34,
+              58,
+              56,
+              44,
+              34,
+              105,
+              100,
+              34,
+              58,
+              34,
+              48,
+              100,
+              53,
+              54,
+              50,
+              102,
+              99,
+              51,
+              45,
+              100,
+              99,
+              52,
+              99,
+              45,
+              52,
+              55,
+              49,
+              101,
+              45,
+              57,
+              51,
+              52,
+              102,
+              45,
+              100,
+              52,
+              97,
+              50,
+              99,
+              54,
+              99,
+              50,
+              52,
+              56,
+              53,
+              57,
+              34,
+              44,
+              34,
+              115,
+              116,
+              97,
+              116,
+              117,
+              115,
+              34,
+              58,
+              34,
+              80,
+              101,
+              110,
+              100,
+              105,
+              110,
+              103,
+              34,
+              44,
+              34,
+              116,
+              111,
+              116,
+              97,
+              108,
+              34,
+              58,
+              51,
+              50,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 8,
+          "responseSize": 186
+        },
+        "id": "921fba47-e245-41ad-8a05-1b2b5850a0d0",
+        "assertions": [
+          {
+            "assertion": "HTTP 200 preserves omitted fields",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "b5716870-fc0e-443d-b5e9-c7a980a9b32e",
+          "length": 17,
+          "cycles": 1,
+          "position": 4,
+          "iteration": 0,
+          "httpRequestId": "2d49d7d1-2c15-450d-ac5d-4530c2d07126"
+        },
+        "item": {
+          "id": "773af42a-0860-4b2f-875a-c48187cf251c",
+          "name": "Deliver order",
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "orders",
+                "{{orderId}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "PATCH",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"status\":\"Delivered\"}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "25860d00-5905-4d3e-9fe6-93770b35def5",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200 Delivered', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().status).to.eql('Delivered'); });",
+                  "pm.collectionVariables.set('beforeInvalid', JSON.stringify(pm.response.json()));"
+                ],
+                "_lastExecutionId": "0e083087-1f24-4c52-8caa-35d0c0db7276"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3007",
+            "path": [
+              "api",
+              "orders",
+              "0d562fc3-dc4c-471e-934f-d4a2c6c24859"
+            ],
+            "host": [
+              "127",
+              "0",
+              "0",
+              "1"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "54e96e84-d229-4d2e-9b05-d1b5466a9074",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "127.0.0.1:3007",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "22",
+              "system": true
+            }
+          ],
+          "method": "PATCH",
+          "body": {
+            "mode": "raw",
+            "raw": "{\"status\":\"Delivered\"}"
+          }
+        },
+        "response": {
+          "id": "7501ea77-43f6-4e4e-b806-17771bde6b5a",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "vary",
+              "value": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            {
+              "key": "cache-control",
+              "value": "no-store"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "Date",
+              "value": "Sat, 31 Oct 2026 15:34:51 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              99,
+              117,
+              115,
+              116,
+              111,
+              109,
+              101,
+              114,
+              78,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              80,
+              111,
+              115,
+              116,
+              109,
+              97,
+              110,
+              32,
+              68,
+              101,
+              109,
+              111,
+              34,
+              44,
+              34,
+              112,
+              104,
+              111,
+              110,
+              101,
+              34,
+              58,
+              34,
+              68,
+              69,
+              77,
+              79,
+              45,
+              80,
+              79,
+              83,
+              84,
+              77,
+              65,
+              78,
+              34,
+              44,
+              34,
+              112,
+              114,
+              111,
+              100,
+              117,
+              99,
+              116,
+              78,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              86,
+              97,
+              110,
+              105,
+              108,
+              108,
+              97,
+              32,
+              67,
+              97,
+              110,
+              100,
+              108,
+              101,
+              34,
+              44,
+              34,
+              113,
+              117,
+              97,
+              110,
+              116,
+              105,
+              116,
+              121,
+              34,
+              58,
+              52,
+              44,
+              34,
+              117,
+              110,
+              105,
+              116,
+              80,
+              114,
+              105,
+              99,
+              101,
+              34,
+              58,
+              56,
+              44,
+              34,
+              105,
+              100,
+              34,
+              58,
+              34,
+              48,
+              100,
+              53,
+              54,
+              50,
+              102,
+              99,
+              51,
+              45,
+              100,
+              99,
+              52,
+              99,
+              45,
+              52,
+              55,
+              49,
+              101,
+              45,
+              57,
+              51,
+              52,
+              102,
+              45,
+              100,
+              52,
+              97,
+              50,
+              99,
+              54,
+              99,
+              50,
+              52,
+              56,
+              53,
+              57,
+              34,
+              44,
+              34,
+              115,
+              116,
+              97,
+              116,
+              117,
+              115,
+              34,
+              58,
+              34,
+              68,
+              101,
+              108,
+              105,
+              118,
+              101,
+              114,
+              101,
+              100,
+              34,
+              44,
+              34,
+              116,
+              111,
+              116,
+              97,
+              108,
+              34,
+              58,
+              51,
+              50,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 7,
+          "responseSize": 188
+        },
+        "id": "773af42a-0860-4b2f-875a-c48187cf251c",
+        "assertions": [
+          {
+            "assertion": "HTTP 200 Delivered",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "4bbd1306-4e42-423d-b166-e87357e427c5",
+          "length": 17,
+          "cycles": 1,
+          "position": 5,
+          "iteration": 0,
+          "httpRequestId": "ecde0067-987b-4e5a-a206-c1d0affcf1c2"
+        },
+        "item": {
+          "id": "da13500c-f470-484b-b3a4-980c5ae8d40c",
+          "name": "Reject negative quantity without partial change",
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "orders",
+                "{{orderId}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "PATCH",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"quantity\":-2,\"status\":\"Preparing\"}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "8e50ca3b-917d-4894-b6f0-a6e6545a9d17",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400 useful error', function () { pm.response.to.have.status(400); pm.expect(pm.response.json().message).to.be.a('string'); });"
+                ],
+                "_lastExecutionId": "bf9ef3a6-3a89-46d7-9d70-b550ea8b0f18"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3007",
+            "path": [
+              "api",
+              "orders",
+              "0d562fc3-dc4c-471e-934f-d4a2c6c24859"
+            ],
+            "host": [
+              "127",
+              "0",
+              "0",
+              "1"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "2337dcf0-7364-4161-8b22-a78cb968293b",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "127.0.0.1:3007",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "36",
+              "system": true
+            }
+          ],
+          "method": "PATCH",
+          "body": {
+            "mode": "raw",
+            "raw": "{\"quantity\":-2,\"status\":\"Preparing\"}"
+          }
+        },
+        "response": {
+          "id": "2ab488b5-596d-4a7b-bf7b-260dd93e7aca",
+          "status": "Bad Request",
+          "code": 400,
+          "header": [
+            {
+              "key": "vary",
+              "value": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            {
+              "key": "cache-control",
+              "value": "no-store"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "Date",
+              "value": "Sat, 31 Oct 2026 15:34:51 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              109,
+              101,
+              115,
+              115,
+              97,
+              103,
+              101,
+              34,
+              58,
+              34,
+              113,
+              117,
+              97,
+              110,
+              116,
+              105,
+              116,
+              121,
+              32,
+              109,
+              117,
+              115,
+              116,
+              32,
+              98,
+              101,
+              32,
+              97,
+              32,
+              112,
+              111,
+              115,
+              105,
+              116,
+              105,
+              118,
+              101,
+              32,
+              115,
+              97,
+              102,
+              101,
+              32,
+              105,
+              110,
+              116,
+              101,
+              103,
+              101,
+              114,
+              32,
+              40,
+              97,
+              116,
+              32,
+              108,
+              101,
+              97,
+              115,
+              116,
+              32,
+              49,
+              41,
+              46,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 8,
+          "responseSize": 68
+        },
+        "id": "da13500c-f470-484b-b3a4-980c5ae8d40c",
+        "assertions": [
+          {
+            "assertion": "HTTP 400 useful error",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "a0bfb165-2ab1-4b69-9c52-0659ba3c9226",
+          "length": 17,
+          "cycles": 1,
+          "position": 6,
+          "iteration": 0,
+          "httpRequestId": "7c2ba244-8108-4a8c-9620-25f8b63ce7bb"
+        },
+        "item": {
+          "id": "bdecb055-7034-468a-be25-d337ba3ac47a",
+          "name": "Stored record unchanged after rejection",
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "orders",
+                "{{orderId}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "d1592dc8-8a58-43ac-adb0-9caad4e66fa8",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Atomic rejection', function () { pm.response.to.have.status(200); pm.expect(pm.response.json()).to.deep.eql(JSON.parse(pm.collectionVariables.get('beforeInvalid'))); });"
+                ],
+                "_lastExecutionId": "a9426d71-3ac1-4789-8f08-e23029d9fb77"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3007",
+            "path": [
+              "api",
+              "orders",
+              "0d562fc3-dc4c-471e-934f-d4a2c6c24859"
+            ],
+            "host": [
+              "127",
+              "0",
+              "0",
+              "1"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "59897193-eff9-4027-ad2c-3f97c8be04ed",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "127.0.0.1:3007",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "d47759cc-89c2-423b-9a97-a992b5f65362",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "vary",
+              "value": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            {
+              "key": "cache-control",
+              "value": "no-store"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "Date",
+              "value": "Sat, 31 Oct 2026 15:34:51 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              99,
+              117,
+              115,
+              116,
+              111,
+              109,
+              101,
+              114,
+              78,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              80,
+              111,
+              115,
+              116,
+              109,
+              97,
+              110,
+              32,
+              68,
+              101,
+              109,
+              111,
+              34,
+              44,
+              34,
+              112,
+              104,
+              111,
+              110,
+              101,
+              34,
+              58,
+              34,
+              68,
+              69,
+              77,
+              79,
+              45,
+              80,
+              79,
+              83,
+              84,
+              77,
+              65,
+              78,
+              34,
+              44,
+              34,
+              112,
+              114,
+              111,
+              100,
+              117,
+              99,
+              116,
+              78,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              86,
+              97,
+              110,
+              105,
+              108,
+              108,
+              97,
+              32,
+              67,
+              97,
+              110,
+              100,
+              108,
+              101,
+              34,
+              44,
+              34,
+              113,
+              117,
+              97,
+              110,
+              116,
+              105,
+              116,
+              121,
+              34,
+              58,
+              52,
+              44,
+              34,
+              117,
+              110,
+              105,
+              116,
+              80,
+              114,
+              105,
+              99,
+              101,
+              34,
+              58,
+              56,
+              44,
+              34,
+              105,
+              100,
+              34,
+              58,
+              34,
+              48,
+              100,
+              53,
+              54,
+              50,
+              102,
+              99,
+              51,
+              45,
+              100,
+              99,
+              52,
+              99,
+              45,
+              52,
+              55,
+              49,
+              101,
+              45,
+              57,
+              51,
+              52,
+              102,
+              45,
+              100,
+              52,
+              97,
+              50,
+              99,
+              54,
+              99,
+              50,
+              52,
+              56,
+              53,
+              57,
+              34,
+              44,
+              34,
+              115,
+              116,
+              97,
+              116,
+              117,
+              115,
+              34,
+              58,
+              34,
+              68,
+              101,
+              108,
+              105,
+              118,
+              101,
+              114,
+              101,
+              100,
+              34,
+              44,
+              34,
+              116,
+              111,
+              116,
+              97,
+              108,
+              34,
+              58,
+              51,
+              50,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 4,
+          "responseSize": 188
+        },
+        "id": "bdecb055-7034-468a-be25-d337ba3ac47a",
+        "assertions": [
+          {
+            "assertion": "Atomic rejection",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "ccf5d2d2-11bc-4503-a9bb-0423e40df7f0",
+          "length": 17,
+          "cycles": 1,
+          "position": 7,
+          "iteration": 0,
+          "httpRequestId": "0413a2a6-6d80-4195-9de0-a53d7ac63de7"
+        },
+        "item": {
+          "id": "c514a1f8-109e-4d7f-8346-eb81098bf7b2",
+          "name": "Ignore client id and total on PATCH",
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "orders",
+                "{{orderId}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "PATCH",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"quantity\":4,\"id\":\"client-id\",\"total\":0}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "c7a59578-1505-4845-a68d-1f1e4f0781b8",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Server still owns ID and total', function () { pm.response.to.have.status(200); const order = pm.response.json(); pm.expect(order.id).to.eql(pm.collectionVariables.get('orderId')); pm.expect(order.total).to.eql(32); });"
+                ],
+                "_lastExecutionId": "c00b48e9-a6b0-4173-8931-8efece67a84f"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3007",
+            "path": [
+              "api",
+              "orders",
+              "0d562fc3-dc4c-471e-934f-d4a2c6c24859"
+            ],
+            "host": [
+              "127",
+              "0",
+              "0",
+              "1"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "600b396a-3e85-489c-b36c-5bb98af30a0f",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "127.0.0.1:3007",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "41",
+              "system": true
+            }
+          ],
+          "method": "PATCH",
+          "body": {
+            "mode": "raw",
+            "raw": "{\"quantity\":4,\"id\":\"client-id\",\"total\":0}"
+          }
+        },
+        "response": {
+          "id": "6ab58c0a-3ed1-4d4e-b07f-e3ce59ab89c0",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "vary",
+              "value": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            {
+              "key": "cache-control",
+              "value": "no-store"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "Date",
+              "value": "Sat, 31 Oct 2026 15:34:51 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              99,
+              117,
+              115,
+              116,
+              111,
+              109,
+              101,
+              114,
+              78,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              80,
+              111,
+              115,
+              116,
+              109,
+              97,
+              110,
+              32,
+              68,
+              101,
+              109,
+              111,
+              34,
+              44,
+              34,
+              112,
+              104,
+              111,
+              110,
+              101,
+              34,
+              58,
+              34,
+              68,
+              69,
+              77,
+              79,
+              45,
+              80,
+              79,
+              83,
+              84,
+              77,
+              65,
+              78,
+              34,
+              44,
+              34,
+              112,
+              114,
+              111,
+              100,
+              117,
+              99,
+              116,
+              78,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              86,
+              97,
+              110,
+              105,
+              108,
+              108,
+              97,
+              32,
+              67,
+              97,
+              110,
+              100,
+              108,
+              101,
+              34,
+              44,
+              34,
+              113,
+              117,
+              97,
+              110,
+              116,
+              105,
+              116,
+              121,
+              34,
+              58,
+              52,
+              44,
+              34,
+              117,
+              110,
+              105,
+              116,
+              80,
+              114,
+              105,
+              99,
+              101,
+              34,
+              58,
+              56,
+              44,
+              34,
+              105,
+              100,
+              34,
+              58,
+              34,
+              48,
+              100,
+              53,
+              54,
+              50,
+              102,
+              99,
+              51,
+              45,
+              100,
+              99,
+              52,
+              99,
+              45,
+              52,
+              55,
+              49,
+              101,
+              45,
+              57,
+              51,
+              52,
+              102,
+              45,
+              100,
+              52,
+              97,
+              50,
+              99,
+              54,
+              99,
+              50,
+              52,
+              56,
+              53,
+              57,
+              34,
+              44,
+              34,
+              115,
+              116,
+              97,
+              116,
+              117,
+              115,
+              34,
+              58,
+              34,
+              68,
+              101,
+              108,
+              105,
+              118,
+              101,
+              114,
+              101,
+              100,
+              34,
+              44,
+              34,
+              116,
+              111,
+              116,
+              97,
+              108,
+              34,
+              58,
+              51,
+              50,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 6,
+          "responseSize": 188
+        },
+        "id": "c514a1f8-109e-4d7f-8346-eb81098bf7b2",
+        "assertions": [
+          {
+            "assertion": "Server still owns ID and total",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "46e866e9-7db0-47a1-a0a1-7a99b0e95447",
+          "length": 17,
+          "cycles": 1,
+          "position": 8,
+          "iteration": 0,
+          "httpRequestId": "685899da-8f99-4ed0-b874-53af0973b847"
+        },
+        "item": {
+          "id": "d43a5e69-d390-4439-bb72-30647b02161b",
+          "name": "Missing customer name",
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "orders"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"phone\":\"DEMO\",\"productName\":\"Vanilla Candle\",\"quantity\":3,\"unitPrice\":8}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "e8ec305f-3e47-4042-8096-13abd0aa8ccb",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });"
+                ],
+                "_lastExecutionId": "7d3fae56-6eb2-4a5c-8402-e39f47ed24ae"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3007",
+            "path": [
+              "api",
+              "orders"
+            ],
+            "host": [
+              "127",
+              "0",
+              "0",
+              "1"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "835a8556-d494-4dba-8bfb-e5a50a90557d",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "127.0.0.1:3007",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "74",
+              "system": true
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\"phone\":\"DEMO\",\"productName\":\"Vanilla Candle\",\"quantity\":3,\"unitPrice\":8}"
+          }
+        },
+        "response": {
+          "id": "0a80e6bf-9bb4-40c1-b32d-df5cd9274396",
+          "status": "Bad Request",
+          "code": 400,
+          "header": [
+            {
+              "key": "vary",
+              "value": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            {
+              "key": "cache-control",
+              "value": "no-store"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "Date",
+              "value": "Sat, 31 Oct 2026 15:34:51 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              109,
+              101,
+              115,
+              115,
+              97,
+              103,
+              101,
+              34,
+              58,
+              34,
+              99,
+              117,
+              115,
+              116,
+              111,
+              109,
+              101,
+              114,
+              78,
+              97,
+              109,
+              101,
+              32,
+              109,
+              117,
+              115,
+              116,
+              32,
+              98,
+              101,
+              32,
+              110,
+              111,
+              110,
+              98,
+              108,
+              97,
+              110,
+              107,
+              32,
+              116,
+              101,
+              120,
+              116,
+              46,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 7,
+          "responseSize": 49
+        },
+        "id": "d43a5e69-d390-4439-bb72-30647b02161b",
+        "assertions": [
+          {
+            "assertion": "HTTP 400",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "63d74003-c563-44fa-a1ce-598312bf7aec",
+          "length": 17,
+          "cycles": 1,
+          "position": 9,
+          "iteration": 0,
+          "httpRequestId": "88a04a97-e062-4250-b088-103e472b6174"
+        },
+        "item": {
+          "id": "217060f1-89a0-4556-b755-278c0463f04b",
+          "name": "Blank phone",
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "orders"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"customerName\":\"Postman Demo\",\"phone\":\"  \",\"productName\":\"Vanilla Candle\",\"quantity\":3,\"unitPrice\":8}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "472983f0-0dc1-4304-90ca-3bc4a6571e42",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });"
+                ],
+                "_lastExecutionId": "ccade5ac-483a-4ed4-81ca-eae1c1a2abe9"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3007",
+            "path": [
+              "api",
+              "orders"
+            ],
+            "host": [
+              "127",
+              "0",
+              "0",
+              "1"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "25250a56-031e-4b59-a990-2bf7081a1172",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "127.0.0.1:3007",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "102",
+              "system": true
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\"customerName\":\"Postman Demo\",\"phone\":\"  \",\"productName\":\"Vanilla Candle\",\"quantity\":3,\"unitPrice\":8}"
+          }
+        },
+        "response": {
+          "id": "60d0f65b-ff22-4f49-b3ab-0c2e37a0f348",
+          "status": "Bad Request",
+          "code": 400,
+          "header": [
+            {
+              "key": "vary",
+              "value": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            {
+              "key": "cache-control",
+              "value": "no-store"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "Date",
+              "value": "Sat, 31 Oct 2026 15:34:51 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              109,
+              101,
+              115,
+              115,
+              97,
+              103,
+              101,
+              34,
+              58,
+              34,
+              112,
+              104,
+              111,
+              110,
+              101,
+              32,
+              109,
+              117,
+              115,
+              116,
+              32,
+              98,
+              101,
+              32,
+              110,
+              111,
+              110,
+              98,
+              108,
+              97,
+              110,
+              107,
+              32,
+              116,
+              101,
+              120,
+              116,
+              46,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 7,
+          "responseSize": 42
+        },
+        "id": "217060f1-89a0-4556-b755-278c0463f04b",
+        "assertions": [
+          {
+            "assertion": "HTTP 400",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "68039f40-2ab4-4aac-948d-76aa14e6a7ee",
+          "length": 17,
+          "cycles": 1,
+          "position": 10,
+          "iteration": 0,
+          "httpRequestId": "a86a0496-2983-40f2-a069-cd3b72fd77e9"
+        },
+        "item": {
+          "id": "0b154699-e1bd-4d43-86cd-cab2ca3d8743",
+          "name": "Unsupported Flying status",
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "orders",
+                "{{orderId}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "PATCH",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"status\":\"Flying\"}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "12ee8642-bedb-433b-90b6-1c16eedf5cde",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });"
+                ],
+                "_lastExecutionId": "5aa3ff92-a8b4-4397-9639-9deb434bf07a"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3007",
+            "path": [
+              "api",
+              "orders",
+              "0d562fc3-dc4c-471e-934f-d4a2c6c24859"
+            ],
+            "host": [
+              "127",
+              "0",
+              "0",
+              "1"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "db856b61-4569-4238-b90c-0c8d13fbd3e6",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "127.0.0.1:3007",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "19",
+              "system": true
+            }
+          ],
+          "method": "PATCH",
+          "body": {
+            "mode": "raw",
+            "raw": "{\"status\":\"Flying\"}"
+          }
+        },
+        "response": {
+          "id": "bdd99b33-90e0-4c91-ba14-3cb518bc194e",
+          "status": "Bad Request",
+          "code": 400,
+          "header": [
+            {
+              "key": "vary",
+              "value": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            {
+              "key": "cache-control",
+              "value": "no-store"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "Date",
+              "value": "Sat, 31 Oct 2026 15:34:51 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              109,
+              101,
+              115,
+              115,
+              97,
+              103,
+              101,
+              34,
+              58,
+              34,
+              115,
+              116,
+              97,
+              116,
+              117,
+              115,
+              32,
+              109,
+              117,
+              115,
+              116,
+              32,
+              98,
+              101,
+              32,
+              80,
+              101,
+              110,
+              100,
+              105,
+              110,
+              103,
+              44,
+              32,
+              80,
+              114,
+              101,
+              112,
+              97,
+              114,
+              105,
+              110,
+              103,
+              44,
+              32,
+              111,
+              114,
+              32,
+              68,
+              101,
+              108,
+              105,
+              118,
+              101,
+              114,
+              101,
+              100,
+              46,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 6,
+          "responseSize": 62
+        },
+        "id": "0b154699-e1bd-4d43-86cd-cab2ca3d8743",
+        "assertions": [
+          {
+            "assertion": "HTTP 400",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "ae9cc944-6a9a-48ed-933b-5c12b744a328",
+          "length": 17,
+          "cycles": 1,
+          "position": 11,
+          "iteration": 0,
+          "httpRequestId": "6fe7a244-7a22-4688-a7b5-3ae93536a08a"
+        },
+        "item": {
+          "id": "409a76e0-ba30-4271-9a4b-e3525f8ce8f4",
+          "name": "Malformed JSON is 400, not 500",
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "orders"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"customerName\":"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "31712d52-6b9d-40fb-b1af-93a7dba480dc",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400 malformed JSON', function () { pm.response.to.have.status(400); pm.expect(pm.response.json().message).to.include('Malformed JSON'); });"
+                ],
+                "_lastExecutionId": "41075284-7490-4682-84ab-80386e66747f"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3007",
+            "path": [
+              "api",
+              "orders"
+            ],
+            "host": [
+              "127",
+              "0",
+              "0",
+              "1"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "263fd7a3-4a3f-4a11-9844-0607bb6749ad",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "127.0.0.1:3007",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "16",
+              "system": true
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\"customerName\":"
+          }
+        },
+        "response": {
+          "id": "0dcc9bef-03e8-45ef-a0be-46c256d58338",
+          "status": "Bad Request",
+          "code": 400,
+          "header": [
+            {
+              "key": "vary",
+              "value": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            {
+              "key": "cache-control",
+              "value": "no-store"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "Date",
+              "value": "Sat, 31 Oct 2026 15:34:51 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              109,
+              101,
+              115,
+              115,
+              97,
+              103,
+              101,
+              34,
+              58,
+              34,
+              77,
+              97,
+              108,
+              102,
+              111,
+              114,
+              109,
+              101,
+              100,
+              32,
+              74,
+              83,
+              79,
+              78,
+              46,
+              32,
+              83,
+              101,
+              110,
+              100,
+              32,
+              97,
+              32,
+              118,
+              97,
+              108,
+              105,
+              100,
+              32,
+              74,
+              83,
+              79,
+              78,
+              32,
+              111,
+              98,
+              106,
+              101,
+              99,
+              116,
+              46,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 6,
+          "responseSize": 55
+        },
+        "id": "409a76e0-ba30-4271-9a4b-e3525f8ce8f4",
+        "assertions": [
+          {
+            "assertion": "HTTP 400 malformed JSON",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "2643f11f-ccb6-4936-b330-054e44f7696f",
+          "length": 17,
+          "cycles": 1,
+          "position": 12,
+          "iteration": 0,
+          "httpRequestId": "0c1336e2-2773-46b3-b5fa-858256df20de"
+        },
+        "item": {
+          "id": "c90d2ce8-b0cf-4986-b1ca-32a78adb1f1a",
+          "name": "Empty PATCH is rejected",
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "orders",
+                "{{orderId}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "PATCH",
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "74a62aa0-b0b7-483c-9d03-51265de3ead4",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });"
+                ],
+                "_lastExecutionId": "c57b124a-89d7-4618-9138-49d97a8499db"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3007",
+            "path": [
+              "api",
+              "orders",
+              "0d562fc3-dc4c-471e-934f-d4a2c6c24859"
+            ],
+            "host": [
+              "127",
+              "0",
+              "0",
+              "1"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "26bce24f-0d3c-4fdf-aa65-7594e34d2eee",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "127.0.0.1:3007",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "2",
+              "system": true
+            }
+          ],
+          "method": "PATCH",
+          "body": {
+            "mode": "raw",
+            "raw": "{}"
+          }
+        },
+        "response": {
+          "id": "2172bfe6-7f7c-4876-8c53-68cd819b9a57",
+          "status": "Bad Request",
+          "code": 400,
+          "header": [
+            {
+              "key": "vary",
+              "value": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            {
+              "key": "cache-control",
+              "value": "no-store"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "Date",
+              "value": "Sat, 31 Oct 2026 15:34:51 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              109,
+              101,
+              115,
+              115,
+              97,
+              103,
+              101,
+              34,
+              58,
+              34,
+              80,
+              114,
+              111,
+              118,
+              105,
+              100,
+              101,
+              32,
+              97,
+              116,
+              32,
+              108,
+              101,
+              97,
+              115,
+              116,
+              32,
+              111,
+              110,
+              101,
+              32,
+              101,
+              100,
+              105,
+              116,
+              97,
+              98,
+              108,
+              101,
+              32,
+              111,
+              114,
+              100,
+              101,
+              114,
+              32,
+              102,
+              105,
+              101,
+              108,
+              100,
+              46,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 7,
+          "responseSize": 56
+        },
+        "id": "c90d2ce8-b0cf-4986-b1ca-32a78adb1f1a",
+        "assertions": [
+          {
+            "assertion": "HTTP 400",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "06bb090e-7b8e-4400-bf62-e0cad0e6ddc6",
+          "length": 17,
+          "cycles": 1,
+          "position": 13,
+          "iteration": 0,
+          "httpRequestId": "178ceb3e-3698-418b-a525-c5d7d0347a97"
+        },
+        "item": {
+          "id": "013ffce0-0f57-4d9f-ae4c-de2fb3f2525a",
+          "name": "Delete disposable order",
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "orders",
+                "{{orderId}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "DELETE"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "0fb50bab-8284-4142-9c90-07dd69a45a2d",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 204 no body', function () { pm.response.to.have.status(204); pm.expect(pm.response.text()).to.eql(''); });"
+                ],
+                "_lastExecutionId": "732a4828-da49-4faa-8d53-fa73f97c7fb8"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3007",
+            "path": [
+              "api",
+              "orders",
+              "0d562fc3-dc4c-471e-934f-d4a2c6c24859"
+            ],
+            "host": [
+              "127",
+              "0",
+              "0",
+              "1"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "f1eacdbf-72b3-491b-9dc3-a5f60949c0f1",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "127.0.0.1:3007",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "DELETE"
+        },
+        "response": {
+          "id": "d7addb54-87b8-4d73-932b-bfd5f280647d",
+          "status": "No Content",
+          "code": 204,
+          "header": [
+            {
+              "key": "vary",
+              "value": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            {
+              "key": "cache-control",
+              "value": "no-store"
+            },
+            {
+              "key": "Date",
+              "value": "Sat, 31 Oct 2026 15:34:51 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": []
+          },
+          "cookie": [],
+          "responseTime": 5,
+          "responseSize": 0
+        },
+        "id": "013ffce0-0f57-4d9f-ae4c-de2fb3f2525a",
+        "assertions": [
+          {
+            "assertion": "HTTP 204 no body",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "da3a2e45-f34c-4b2f-b338-56fb6a044134",
+          "length": 17,
+          "cycles": 1,
+          "position": 14,
+          "iteration": 0,
+          "httpRequestId": "771f539e-670d-48e3-8666-e28bdc5ba60e"
+        },
+        "item": {
+          "id": "825cb1e2-5ad2-4126-9f2f-be0fa2e55aa3",
+          "name": "Read deleted ID",
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "orders",
+                "{{orderId}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "792d1815-d8e9-463d-a0f0-caafe0fb1f48",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', function () { pm.response.to.have.status(404); });"
+                ],
+                "_lastExecutionId": "50b22af6-6773-4979-9667-b822a6181b37"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3007",
+            "path": [
+              "api",
+              "orders",
+              "0d562fc3-dc4c-471e-934f-d4a2c6c24859"
+            ],
+            "host": [
+              "127",
+              "0",
+              "0",
+              "1"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "689b59f7-f4d3-4ffd-87c9-c2eb4946ecdb",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "127.0.0.1:3007",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "df03cbf2-0f8a-4c09-bfb4-65d3ecaa7229",
+          "status": "Not Found",
+          "code": 404,
+          "header": [
+            {
+              "key": "vary",
+              "value": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            {
+              "key": "cache-control",
+              "value": "no-store"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "Date",
+              "value": "Sat, 31 Oct 2026 15:34:51 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              109,
+              101,
+              115,
+              115,
+              97,
+              103,
+              101,
+              34,
+              58,
+              34,
+              79,
+              114,
+              100,
+              101,
+              114,
+              32,
+              110,
+              111,
+              116,
+              32,
+              102,
+              111,
+              117,
+              110,
+              100,
+              46,
+              32,
+              82,
+              101,
+              102,
+              114,
+              101,
+              115,
+              104,
+              32,
+              116,
+              104,
+              101,
+              32,
+              108,
+              105,
+              115,
+              116,
+              32,
+              116,
+              111,
+              32,
+              115,
+              101,
+              101,
+              32,
+              99,
+              117,
+              114,
+              114,
+              101,
+              110,
+              116,
+              32,
+              111,
+              114,
+              100,
+              101,
+              114,
+              115,
+              46,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 5,
+          "responseSize": 70
+        },
+        "id": "825cb1e2-5ad2-4126-9f2f-be0fa2e55aa3",
+        "assertions": [
+          {
+            "assertion": "HTTP 404",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "4ea16a7b-32ba-4e11-a6c6-8114be5a7175",
+          "length": 17,
+          "cycles": 1,
+          "position": 15,
+          "iteration": 0,
+          "httpRequestId": "8f62ced2-739d-47cc-b628-dd4435e42c46"
+        },
+        "item": {
+          "id": "0dfc8c73-ef99-4a51-83d1-0ee0e047b98b",
+          "name": "Update deleted ID",
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "orders",
+                "{{orderId}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "PATCH",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"quantity\":2}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "9e2c06cc-4659-4e7c-b220-ca7a04fcb735",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', function () { pm.response.to.have.status(404); });"
+                ],
+                "_lastExecutionId": "31fbc383-74cd-4d35-a233-40b8278ac67c"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3007",
+            "path": [
+              "api",
+              "orders",
+              "0d562fc3-dc4c-471e-934f-d4a2c6c24859"
+            ],
+            "host": [
+              "127",
+              "0",
+              "0",
+              "1"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "58bea7c4-755d-47f2-94e4-7149b486842e",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "127.0.0.1:3007",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "14",
+              "system": true
+            }
+          ],
+          "method": "PATCH",
+          "body": {
+            "mode": "raw",
+            "raw": "{\"quantity\":2}"
+          }
+        },
+        "response": {
+          "id": "37adf627-e7b6-435c-9b98-0d8835bb6c8c",
+          "status": "Not Found",
+          "code": 404,
+          "header": [
+            {
+              "key": "vary",
+              "value": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            {
+              "key": "cache-control",
+              "value": "no-store"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "Date",
+              "value": "Sat, 31 Oct 2026 15:34:52 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              109,
+              101,
+              115,
+              115,
+              97,
+              103,
+              101,
+              34,
+              58,
+              34,
+              79,
+              114,
+              100,
+              101,
+              114,
+              32,
+              110,
+              111,
+              116,
+              32,
+              102,
+              111,
+              117,
+              110,
+              100,
+              46,
+              32,
+              82,
+              101,
+              102,
+              114,
+              101,
+              115,
+              104,
+              32,
+              116,
+              104,
+              101,
+              32,
+              108,
+              105,
+              115,
+              116,
+              32,
+              116,
+              111,
+              32,
+              115,
+              101,
+              101,
+              32,
+              99,
+              117,
+              114,
+              114,
+              101,
+              110,
+              116,
+              32,
+              111,
+              114,
+              100,
+              101,
+              114,
+              115,
+              46,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 4,
+          "responseSize": 70
+        },
+        "id": "0dfc8c73-ef99-4a51-83d1-0ee0e047b98b",
+        "assertions": [
+          {
+            "assertion": "HTTP 404",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "9fc5880e-ba05-4551-bbe2-c07ad4b40a80",
+          "length": 17,
+          "cycles": 1,
+          "position": 16,
+          "iteration": 0,
+          "httpRequestId": "217aa3fb-d832-41f1-be4c-54c0cc07dd74"
+        },
+        "item": {
+          "id": "6f4e8045-4cb7-4ef6-b4c6-57bc7040b50f",
+          "name": "Delete unknown ID",
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "orders",
+                "not-an-order"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "DELETE"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "3316591f-e904-4659-93b6-fb2d2cfc8861",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', function () { pm.response.to.have.status(404); });"
+                ],
+                "_lastExecutionId": "d41743e4-afca-43fc-a3c4-70e8875e6aca"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3007",
+            "path": [
+              "api",
+              "orders",
+              "not-an-order"
+            ],
+            "host": [
+              "127",
+              "0",
+              "0",
+              "1"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "f3b747c9-5a6d-460a-bc96-87f2d1f3e8a7",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "127.0.0.1:3007",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "DELETE"
+        },
+        "response": {
+          "id": "b5b8edef-2108-4c80-a70d-67cfcdca8b5a",
+          "status": "Not Found",
+          "code": 404,
+          "header": [
+            {
+              "key": "vary",
+              "value": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            {
+              "key": "cache-control",
+              "value": "no-store"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "Date",
+              "value": "Sat, 31 Oct 2026 15:34:52 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            },
+            {
+              "key": "Transfer-Encoding",
+              "value": "chunked"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              109,
+              101,
+              115,
+              115,
+              97,
+              103,
+              101,
+              34,
+              58,
+              34,
+              79,
+              114,
+              100,
+              101,
+              114,
+              32,
+              110,
+              111,
+              116,
+              32,
+              102,
+              111,
+              117,
+              110,
+              100,
+              46,
+              32,
+              82,
+              101,
+              102,
+              114,
+              101,
+              115,
+              104,
+              32,
+              116,
+              104,
+              101,
+              32,
+              108,
+              105,
+              115,
+              116,
+              32,
+              116,
+              111,
+              32,
+              115,
+              101,
+              101,
+              32,
+              99,
+              117,
+              114,
+              114,
+              101,
+              110,
+              116,
+              32,
+              111,
+              114,
+              100,
+              101,
+              114,
+              115,
+              46,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 7,
+          "responseSize": 70
+        },
+        "id": "6f4e8045-4cb7-4ef6-b4c6-57bc7040b50f",
+        "assertions": [
+          {
+            "assertion": "HTTP 404",
+            "skipped": false
+          }
+        ]
+      }
+    ],
+    "transfers": {
+      "responseTotal": 2131
+    },
+    "failures": [],
+    "error": null
+  }
+}

@@ -1,0 +1,905 @@
+{
+  "base": "http://127.0.0.1:3007",
+  "checks": 47,
+  "status": "PASS",
+  "results": [
+    {
+      "name": "List orders",
+      "expectedStatus": 200,
+      "outcome": "PASS",
+      "method": "GET",
+      "path": "/api/orders",
+      "requestBody": null,
+      "status": 200,
+      "responseBody": [
+        {
+          "id": "demo-001",
+          "customerName": "Mira Demo",
+          "phone": "DEMO-001",
+          "productName": "Vanilla Candle",
+          "quantity": 2,
+          "unitPrice": 8,
+          "total": 16,
+          "status": "Pending"
+        },
+        {
+          "id": "demo-002",
+          "customerName": "Sami Example",
+          "phone": "DEMO-002",
+          "productName": "Cedar Candle",
+          "quantity": 1,
+          "unitPrice": 10,
+          "total": 10,
+          "status": "Preparing"
+        },
+        {
+          "id": "demo-003",
+          "customerName": "Lina Sample",
+          "phone": "DEMO-003",
+          "productName": "Mini Gift Candle",
+          "quantity": 3,
+          "unitPrice": 6,
+          "total": 18,
+          "status": "Delivered"
+        }
+      ],
+      "responseText": "[{\"id\":\"demo-001\",\"customerName\":\"Mira Demo\",\"phone\":\"DEMO-001\",\"productName\":\"Vanilla Candle\",\"quantity\":2,\"unitPrice\":8,\"total\":16,\"status\":\"Pending\"},{\"id\":\"demo-002\",\"customerName\":\"Sami Example\",\"phone\":\"DEMO-002\",\"productName\":\"Cedar Candle\",\"quantity\":1,\"unitPrice\":10,\"total\":10,\"status\":\"Preparing\"},{\"id\":\"demo-003\",\"customerName\":\"Lina Sample\",\"phone\":\"DEMO-003\",\"productName\":\"Mini Gift Candle\",\"quantity\":3,\"unitPrice\":6,\"total\":18,\"status\":\"Delivered\"}]"
+    },
+    {
+      "name": "Create trimmed order; ignore supplied id and total",
+      "expectedStatus": 201,
+      "outcome": "PASS",
+      "method": "POST",
+      "path": "/api/orders",
+      "requestBody": {
+        "customerName": "  Mira API Demo  ",
+        "phone": "  DEMO-API-001  ",
+        "productName": "  Vanilla Candle  ",
+        "quantity": 3,
+        "unitPrice": 8,
+        "id": "client-id",
+        "total": 0
+      },
+      "status": 201,
+      "responseBody": {
+        "customerName": "Mira API Demo",
+        "phone": "DEMO-API-001",
+        "productName": "Vanilla Candle",
+        "quantity": 3,
+        "unitPrice": 8,
+        "id": "3702d2e7-d490-46e8-9e31-81c7f666ab60",
+        "status": "Pending",
+        "total": 24
+      },
+      "responseText": "{\"customerName\":\"Mira API Demo\",\"phone\":\"DEMO-API-001\",\"productName\":\"Vanilla Candle\",\"quantity\":3,\"unitPrice\":8,\"id\":\"3702d2e7-d490-46e8-9e31-81c7f666ab60\",\"status\":\"Pending\",\"total\":24}"
+    },
+    {
+      "name": "Read created order from another endpoint",
+      "expectedStatus": 200,
+      "outcome": "PASS",
+      "method": "GET",
+      "path": "/api/orders/3702d2e7-d490-46e8-9e31-81c7f666ab60",
+      "requestBody": null,
+      "status": 200,
+      "responseBody": {
+        "customerName": "Mira API Demo",
+        "phone": "DEMO-API-001",
+        "productName": "Vanilla Candle",
+        "quantity": 3,
+        "unitPrice": 8,
+        "id": "3702d2e7-d490-46e8-9e31-81c7f666ab60",
+        "status": "Pending",
+        "total": 24
+      },
+      "responseText": "{\"customerName\":\"Mira API Demo\",\"phone\":\"DEMO-API-001\",\"productName\":\"Vanilla Candle\",\"quantity\":3,\"unitPrice\":8,\"id\":\"3702d2e7-d490-46e8-9e31-81c7f666ab60\",\"status\":\"Pending\",\"total\":24}"
+    },
+    {
+      "name": "Created order appears in list",
+      "expectedStatus": 200,
+      "outcome": "PASS",
+      "method": "GET",
+      "path": "/api/orders",
+      "requestBody": null,
+      "status": 200,
+      "responseBody": [
+        {
+          "id": "demo-001",
+          "customerName": "Mira Demo",
+          "phone": "DEMO-001",
+          "productName": "Vanilla Candle",
+          "quantity": 2,
+          "unitPrice": 8,
+          "total": 16,
+          "status": "Pending"
+        },
+        {
+          "id": "demo-002",
+          "customerName": "Sami Example",
+          "phone": "DEMO-002",
+          "productName": "Cedar Candle",
+          "quantity": 1,
+          "unitPrice": 10,
+          "total": 10,
+          "status": "Preparing"
+        },
+        {
+          "id": "demo-003",
+          "customerName": "Lina Sample",
+          "phone": "DEMO-003",
+          "productName": "Mini Gift Candle",
+          "quantity": 3,
+          "unitPrice": 6,
+          "total": 18,
+          "status": "Delivered"
+        },
+        {
+          "customerName": "Mira API Demo",
+          "phone": "DEMO-API-001",
+          "productName": "Vanilla Candle",
+          "quantity": 3,
+          "unitPrice": 8,
+          "id": "3702d2e7-d490-46e8-9e31-81c7f666ab60",
+          "status": "Pending",
+          "total": 24
+        }
+      ],
+      "responseText": "[{\"id\":\"demo-001\",\"customerName\":\"Mira Demo\",\"phone\":\"DEMO-001\",\"productName\":\"Vanilla Candle\",\"quantity\":2,\"unitPrice\":8,\"total\":16,\"status\":\"Pending\"},{\"id\":\"demo-002\",\"customerName\":\"Sami Example\",\"phone\":\"DEMO-002\",\"productName\":\"Cedar Candle\",\"quantity\":1,\"unitPrice\":10,\"total\":10,\"status\":\"Preparing\"},{\"id\":\"demo-003\",\"customerName\":\"Lina Sample\",\"phone\":\"DEMO-003\",\"productName\":\"Mini Gift Candle\",\"quantity\":3,\"unitPrice\":6,\"total\":18,\"status\":\"Delivered\"},{\"customerName\":\"Mira API Demo\",\"phone\":\"DEMO-API-001\",\"productName\":\"Vanilla Candle\",\"quantity\":3,\"unitPrice\":8,\"id\":\"3702d2e7-d490-46e8-9e31-81c7f666ab60\",\"status\":\"Pending\",\"total\":24}]"
+    },
+    {
+      "name": "Missing customer name",
+      "expectedStatus": 400,
+      "outcome": "PASS",
+      "method": "POST",
+      "path": "/api/orders",
+      "requestBody": {
+        "phone": "  DEMO-API-001  ",
+        "productName": "  Vanilla Candle  ",
+        "quantity": 3,
+        "unitPrice": 8
+      },
+      "status": 400,
+      "responseBody": {
+        "message": "customerName must be nonblank text."
+      },
+      "responseText": "{\"message\":\"customerName must be nonblank text.\"}"
+    },
+    {
+      "name": "Blank customer name",
+      "expectedStatus": 400,
+      "outcome": "PASS",
+      "method": "POST",
+      "path": "/api/orders",
+      "requestBody": {
+        "customerName": "   ",
+        "phone": "  DEMO-API-001  ",
+        "productName": "  Vanilla Candle  ",
+        "quantity": 3,
+        "unitPrice": 8
+      },
+      "status": 400,
+      "responseBody": {
+        "message": "customerName must be nonblank text."
+      },
+      "responseText": "{\"message\":\"customerName must be nonblank text.\"}"
+    },
+    {
+      "name": "Blank phone",
+      "expectedStatus": 400,
+      "outcome": "PASS",
+      "method": "POST",
+      "path": "/api/orders",
+      "requestBody": {
+        "customerName": "  Mira API Demo  ",
+        "phone": "  ",
+        "productName": "  Vanilla Candle  ",
+        "quantity": 3,
+        "unitPrice": 8
+      },
+      "status": 400,
+      "responseBody": {
+        "message": "phone must be nonblank text."
+      },
+      "responseText": "{\"message\":\"phone must be nonblank text.\"}"
+    },
+    {
+      "name": "Numeric phone stays invalid",
+      "expectedStatus": 400,
+      "outcome": "PASS",
+      "method": "POST",
+      "path": "/api/orders",
+      "requestBody": {
+        "customerName": "  Mira API Demo  ",
+        "phone": 12345,
+        "productName": "  Vanilla Candle  ",
+        "quantity": 3,
+        "unitPrice": 8
+      },
+      "status": 400,
+      "responseBody": {
+        "message": "phone must be nonblank text."
+      },
+      "responseText": "{\"message\":\"phone must be nonblank text.\"}"
+    },
+    {
+      "name": "Blank product",
+      "expectedStatus": 400,
+      "outcome": "PASS",
+      "method": "POST",
+      "path": "/api/orders",
+      "requestBody": {
+        "customerName": "  Mira API Demo  ",
+        "phone": "  DEMO-API-001  ",
+        "productName": "",
+        "quantity": 3,
+        "unitPrice": 8
+      },
+      "status": 400,
+      "responseBody": {
+        "message": "productName must be nonblank text."
+      },
+      "responseText": "{\"message\":\"productName must be nonblank text.\"}"
+    },
+    {
+      "name": "Invalid quantity 0",
+      "expectedStatus": 400,
+      "outcome": "PASS",
+      "method": "POST",
+      "path": "/api/orders",
+      "requestBody": {
+        "customerName": "  Mira API Demo  ",
+        "phone": "  DEMO-API-001  ",
+        "productName": "  Vanilla Candle  ",
+        "quantity": 0,
+        "unitPrice": 8
+      },
+      "status": 400,
+      "responseBody": {
+        "message": "quantity must be a positive safe integer (at least 1)."
+      },
+      "responseText": "{\"message\":\"quantity must be a positive safe integer (at least 1).\"}"
+    },
+    {
+      "name": "Invalid quantity -1",
+      "expectedStatus": 400,
+      "outcome": "PASS",
+      "method": "POST",
+      "path": "/api/orders",
+      "requestBody": {
+        "customerName": "  Mira API Demo  ",
+        "phone": "  DEMO-API-001  ",
+        "productName": "  Vanilla Candle  ",
+        "quantity": -1,
+        "unitPrice": 8
+      },
+      "status": 400,
+      "responseBody": {
+        "message": "quantity must be a positive safe integer (at least 1)."
+      },
+      "responseText": "{\"message\":\"quantity must be a positive safe integer (at least 1).\"}"
+    },
+    {
+      "name": "Invalid quantity 1.5",
+      "expectedStatus": 400,
+      "outcome": "PASS",
+      "method": "POST",
+      "path": "/api/orders",
+      "requestBody": {
+        "customerName": "  Mira API Demo  ",
+        "phone": "  DEMO-API-001  ",
+        "productName": "  Vanilla Candle  ",
+        "quantity": 1.5,
+        "unitPrice": 8
+      },
+      "status": 400,
+      "responseBody": {
+        "message": "quantity must be a positive safe integer (at least 1)."
+      },
+      "responseText": "{\"message\":\"quantity must be a positive safe integer (at least 1).\"}"
+    },
+    {
+      "name": "Invalid quantity \"3\"",
+      "expectedStatus": 400,
+      "outcome": "PASS",
+      "method": "POST",
+      "path": "/api/orders",
+      "requestBody": {
+        "customerName": "  Mira API Demo  ",
+        "phone": "  DEMO-API-001  ",
+        "productName": "  Vanilla Candle  ",
+        "quantity": "3",
+        "unitPrice": 8
+      },
+      "status": 400,
+      "responseBody": {
+        "message": "quantity must be a positive safe integer (at least 1)."
+      },
+      "responseText": "{\"message\":\"quantity must be a positive safe integer (at least 1).\"}"
+    },
+    {
+      "name": "Invalid quantity null",
+      "expectedStatus": 400,
+      "outcome": "PASS",
+      "method": "POST",
+      "path": "/api/orders",
+      "requestBody": {
+        "customerName": "  Mira API Demo  ",
+        "phone": "  DEMO-API-001  ",
+        "productName": "  Vanilla Candle  ",
+        "quantity": null,
+        "unitPrice": 8
+      },
+      "status": 400,
+      "responseBody": {
+        "message": "quantity must be a positive safe integer (at least 1)."
+      },
+      "responseText": "{\"message\":\"quantity must be a positive safe integer (at least 1).\"}"
+    },
+    {
+      "name": "Invalid unitPrice -1",
+      "expectedStatus": 400,
+      "outcome": "PASS",
+      "method": "POST",
+      "path": "/api/orders",
+      "requestBody": {
+        "customerName": "  Mira API Demo  ",
+        "phone": "  DEMO-API-001  ",
+        "productName": "  Vanilla Candle  ",
+        "quantity": 3,
+        "unitPrice": -1
+      },
+      "status": 400,
+      "responseBody": {
+        "message": "unitPrice must be a finite nonnegative number with at most two decimal places."
+      },
+      "responseText": "{\"message\":\"unitPrice must be a finite nonnegative number with at most two decimal places.\"}"
+    },
+    {
+      "name": "Invalid unitPrice \"8\"",
+      "expectedStatus": 400,
+      "outcome": "PASS",
+      "method": "POST",
+      "path": "/api/orders",
+      "requestBody": {
+        "customerName": "  Mira API Demo  ",
+        "phone": "  DEMO-API-001  ",
+        "productName": "  Vanilla Candle  ",
+        "quantity": 3,
+        "unitPrice": "8"
+      },
+      "status": 400,
+      "responseBody": {
+        "message": "unitPrice must be a finite nonnegative number with at most two decimal places."
+      },
+      "responseText": "{\"message\":\"unitPrice must be a finite nonnegative number with at most two decimal places.\"}"
+    },
+    {
+      "name": "Invalid unitPrice 8.001",
+      "expectedStatus": 400,
+      "outcome": "PASS",
+      "method": "POST",
+      "path": "/api/orders",
+      "requestBody": {
+        "customerName": "  Mira API Demo  ",
+        "phone": "  DEMO-API-001  ",
+        "productName": "  Vanilla Candle  ",
+        "quantity": 3,
+        "unitPrice": 8.001
+      },
+      "status": 400,
+      "responseBody": {
+        "message": "unitPrice must be a finite nonnegative number with at most two decimal places."
+      },
+      "responseText": "{\"message\":\"unitPrice must be a finite nonnegative number with at most two decimal places.\"}"
+    },
+    {
+      "name": "Invalid unitPrice null",
+      "expectedStatus": 400,
+      "outcome": "PASS",
+      "method": "POST",
+      "path": "/api/orders",
+      "requestBody": {
+        "customerName": "  Mira API Demo  ",
+        "phone": "  DEMO-API-001  ",
+        "productName": "  Vanilla Candle  ",
+        "quantity": 3,
+        "unitPrice": null
+      },
+      "status": 400,
+      "responseBody": {
+        "message": "unitPrice must be a finite nonnegative number with at most two decimal places."
+      },
+      "responseText": "{\"message\":\"unitPrice must be a finite nonnegative number with at most two decimal places.\"}"
+    },
+    {
+      "name": "Unknown field rejected",
+      "expectedStatus": 400,
+      "outcome": "PASS",
+      "method": "POST",
+      "path": "/api/orders",
+      "requestBody": {
+        "customerName": "  Mira API Demo  ",
+        "phone": "  DEMO-API-001  ",
+        "productName": "  Vanilla Candle  ",
+        "quantity": 3,
+        "unitPrice": 8,
+        "typo": "value"
+      },
+      "status": 400,
+      "responseBody": {
+        "message": "Unknown field: typo."
+      },
+      "responseText": "{\"message\":\"Unknown field: typo.\"}"
+    },
+    {
+      "name": "POST cannot skip Pending",
+      "expectedStatus": 400,
+      "outcome": "PASS",
+      "method": "POST",
+      "path": "/api/orders",
+      "requestBody": {
+        "customerName": "  Mira API Demo  ",
+        "phone": "  DEMO-API-001  ",
+        "productName": "  Vanilla Candle  ",
+        "quantity": 3,
+        "unitPrice": 8,
+        "status": "Delivered"
+      },
+      "status": 400,
+      "responseBody": {
+        "message": "New orders must start Pending."
+      },
+      "responseText": "{\"message\":\"New orders must start Pending.\"}"
+    },
+    {
+      "name": "Malformed POST JSON",
+      "expectedStatus": 400,
+      "outcome": "PASS",
+      "method": "POST",
+      "path": "/api/orders",
+      "requestBody": "{\"customerName\":",
+      "status": 400,
+      "responseBody": {
+        "message": "Malformed JSON. Send a valid JSON object."
+      },
+      "responseText": "{\"message\":\"Malformed JSON. Send a valid JSON object.\"}"
+    },
+    {
+      "name": "Non-object body null",
+      "expectedStatus": 400,
+      "outcome": "PASS",
+      "method": "POST",
+      "path": "/api/orders",
+      "requestBody": null,
+      "status": 400,
+      "responseBody": {
+        "message": "Send a JSON object with order fields."
+      },
+      "responseText": "{\"message\":\"Send a JSON object with order fields.\"}"
+    },
+    {
+      "name": "Non-object body []",
+      "expectedStatus": 400,
+      "outcome": "PASS",
+      "method": "POST",
+      "path": "/api/orders",
+      "requestBody": [],
+      "status": 400,
+      "responseBody": {
+        "message": "Send a JSON object with order fields."
+      },
+      "responseText": "{\"message\":\"Send a JSON object with order fields.\"}"
+    },
+    {
+      "name": "Non-object body \"hello\"",
+      "expectedStatus": 400,
+      "outcome": "PASS",
+      "method": "POST",
+      "path": "/api/orders",
+      "requestBody": "hello",
+      "status": 400,
+      "responseBody": {
+        "message": "Send a JSON object with order fields."
+      },
+      "responseText": "{\"message\":\"Send a JSON object with order fields.\"}"
+    },
+    {
+      "name": "Partial quantity update and $32 total",
+      "expectedStatus": 200,
+      "outcome": "PASS",
+      "method": "PATCH",
+      "path": "/api/orders/3702d2e7-d490-46e8-9e31-81c7f666ab60",
+      "requestBody": {
+        "quantity": 4
+      },
+      "status": 200,
+      "responseBody": {
+        "customerName": "Mira API Demo",
+        "phone": "DEMO-API-001",
+        "productName": "Vanilla Candle",
+        "quantity": 4,
+        "unitPrice": 8,
+        "id": "3702d2e7-d490-46e8-9e31-81c7f666ab60",
+        "status": "Pending",
+        "total": 32
+      },
+      "responseText": "{\"customerName\":\"Mira API Demo\",\"phone\":\"DEMO-API-001\",\"productName\":\"Vanilla Candle\",\"quantity\":4,\"unitPrice\":8,\"id\":\"3702d2e7-d490-46e8-9e31-81c7f666ab60\",\"status\":\"Pending\",\"total\":32}"
+    },
+    {
+      "name": "Change status to Delivered",
+      "expectedStatus": 200,
+      "outcome": "PASS",
+      "method": "PATCH",
+      "path": "/api/orders/3702d2e7-d490-46e8-9e31-81c7f666ab60",
+      "requestBody": {
+        "status": "Delivered"
+      },
+      "status": 200,
+      "responseBody": {
+        "customerName": "Mira API Demo",
+        "phone": "DEMO-API-001",
+        "productName": "Vanilla Candle",
+        "quantity": 4,
+        "unitPrice": 8,
+        "id": "3702d2e7-d490-46e8-9e31-81c7f666ab60",
+        "status": "Delivered",
+        "total": 32
+      },
+      "responseText": "{\"customerName\":\"Mira API Demo\",\"phone\":\"DEMO-API-001\",\"productName\":\"Vanilla Candle\",\"quantity\":4,\"unitPrice\":8,\"id\":\"3702d2e7-d490-46e8-9e31-81c7f666ab60\",\"status\":\"Delivered\",\"total\":32}"
+    },
+    {
+      "name": "Reject quantity -2 atomically",
+      "expectedStatus": 400,
+      "outcome": "PASS",
+      "method": "PATCH",
+      "path": "/api/orders/3702d2e7-d490-46e8-9e31-81c7f666ab60",
+      "requestBody": {
+        "quantity": -2,
+        "status": "Preparing",
+        "customerName": "Must not save"
+      },
+      "status": 400,
+      "responseBody": {
+        "message": "quantity must be a positive safe integer (at least 1)."
+      },
+      "responseText": "{\"message\":\"quantity must be a positive safe integer (at least 1).\"}"
+    },
+    {
+      "name": "Rejected update leaves stored record unchanged",
+      "expectedStatus": 200,
+      "outcome": "PASS",
+      "method": "GET",
+      "path": "/api/orders/3702d2e7-d490-46e8-9e31-81c7f666ab60",
+      "requestBody": null,
+      "status": 200,
+      "responseBody": {
+        "customerName": "Mira API Demo",
+        "phone": "DEMO-API-001",
+        "productName": "Vanilla Candle",
+        "quantity": 4,
+        "unitPrice": 8,
+        "id": "3702d2e7-d490-46e8-9e31-81c7f666ab60",
+        "status": "Delivered",
+        "total": 32
+      },
+      "responseText": "{\"customerName\":\"Mira API Demo\",\"phone\":\"DEMO-API-001\",\"productName\":\"Vanilla Candle\",\"quantity\":4,\"unitPrice\":8,\"id\":\"3702d2e7-d490-46e8-9e31-81c7f666ab60\",\"status\":\"Delivered\",\"total\":32}"
+    },
+    {
+      "name": "Reject Flying status",
+      "expectedStatus": 400,
+      "outcome": "PASS",
+      "method": "PATCH",
+      "path": "/api/orders/3702d2e7-d490-46e8-9e31-81c7f666ab60",
+      "requestBody": {
+        "status": "Flying"
+      },
+      "status": 400,
+      "responseBody": {
+        "message": "status must be Pending, Preparing, or Delivered."
+      },
+      "responseText": "{\"message\":\"status must be Pending, Preparing, or Delivered.\"}"
+    },
+    {
+      "name": "Reject empty PATCH",
+      "expectedStatus": 400,
+      "outcome": "PASS",
+      "method": "PATCH",
+      "path": "/api/orders/3702d2e7-d490-46e8-9e31-81c7f666ab60",
+      "requestBody": {},
+      "status": 400,
+      "responseBody": {
+        "message": "Provide at least one editable order field."
+      },
+      "responseText": "{\"message\":\"Provide at least one editable order field.\"}"
+    },
+    {
+      "name": "Reject server-owned-only PATCH",
+      "expectedStatus": 400,
+      "outcome": "PASS",
+      "method": "PATCH",
+      "path": "/api/orders/3702d2e7-d490-46e8-9e31-81c7f666ab60",
+      "requestBody": {
+        "id": "hijack",
+        "total": 0
+      },
+      "status": 400,
+      "responseBody": {
+        "message": "Provide at least one editable order field."
+      },
+      "responseText": "{\"message\":\"Provide at least one editable order field.\"}"
+    },
+    {
+      "name": "Malformed PATCH JSON",
+      "expectedStatus": 400,
+      "outcome": "PASS",
+      "method": "PATCH",
+      "path": "/api/orders/3702d2e7-d490-46e8-9e31-81c7f666ab60",
+      "requestBody": "{\"quantity\":",
+      "status": 400,
+      "responseBody": {
+        "message": "Malformed JSON. Send a valid JSON object."
+      },
+      "responseText": "{\"message\":\"Malformed JSON. Send a valid JSON object.\"}"
+    },
+    {
+      "name": "ID and total cannot be overwritten",
+      "expectedStatus": 200,
+      "outcome": "PASS",
+      "method": "PATCH",
+      "path": "/api/orders/3702d2e7-d490-46e8-9e31-81c7f666ab60",
+      "requestBody": {
+        "id": "hijack",
+        "total": 0,
+        "quantity": 3
+      },
+      "status": 200,
+      "responseBody": {
+        "customerName": "Mira API Demo",
+        "phone": "DEMO-API-001",
+        "productName": "Vanilla Candle",
+        "quantity": 3,
+        "unitPrice": 8,
+        "id": "3702d2e7-d490-46e8-9e31-81c7f666ab60",
+        "status": "Delivered",
+        "total": 24
+      },
+      "responseText": "{\"customerName\":\"Mira API Demo\",\"phone\":\"DEMO-API-001\",\"productName\":\"Vanilla Candle\",\"quantity\":3,\"unitPrice\":8,\"id\":\"3702d2e7-d490-46e8-9e31-81c7f666ab60\",\"status\":\"Delivered\",\"total\":24}"
+    },
+    {
+      "name": "Price update recalculates total",
+      "expectedStatus": 200,
+      "outcome": "PASS",
+      "method": "PATCH",
+      "path": "/api/orders/3702d2e7-d490-46e8-9e31-81c7f666ab60",
+      "requestBody": {
+        "quantity": 2,
+        "unitPrice": 8.5
+      },
+      "status": 200,
+      "responseBody": {
+        "customerName": "Mira API Demo",
+        "phone": "DEMO-API-001",
+        "productName": "Vanilla Candle",
+        "quantity": 2,
+        "unitPrice": 8.5,
+        "id": "3702d2e7-d490-46e8-9e31-81c7f666ab60",
+        "status": "Delivered",
+        "total": 17
+      },
+      "responseText": "{\"customerName\":\"Mira API Demo\",\"phone\":\"DEMO-API-001\",\"productName\":\"Vanilla Candle\",\"quantity\":2,\"unitPrice\":8.5,\"id\":\"3702d2e7-d490-46e8-9e31-81c7f666ab60\",\"status\":\"Delivered\",\"total\":17}"
+    },
+    {
+      "name": "Reject mixed invalid price atomically",
+      "expectedStatus": 400,
+      "outcome": "PASS",
+      "method": "PATCH",
+      "path": "/api/orders/3702d2e7-d490-46e8-9e31-81c7f666ab60",
+      "requestBody": {
+        "customerName": "Must not save",
+        "unitPrice": 1.234
+      },
+      "status": 400,
+      "responseBody": {
+        "message": "unitPrice must be a finite nonnegative number with at most two decimal places."
+      },
+      "responseText": "{\"message\":\"unitPrice must be a finite nonnegative number with at most two decimal places.\"}"
+    },
+    {
+      "name": "Mixed invalid update unchanged",
+      "expectedStatus": 200,
+      "outcome": "PASS",
+      "method": "GET",
+      "path": "/api/orders/3702d2e7-d490-46e8-9e31-81c7f666ab60",
+      "requestBody": null,
+      "status": 200,
+      "responseBody": {
+        "customerName": "Mira API Demo",
+        "phone": "DEMO-API-001",
+        "productName": "Vanilla Candle",
+        "quantity": 2,
+        "unitPrice": 8.5,
+        "id": "3702d2e7-d490-46e8-9e31-81c7f666ab60",
+        "status": "Delivered",
+        "total": 17
+      },
+      "responseText": "{\"customerName\":\"Mira API Demo\",\"phone\":\"DEMO-API-001\",\"productName\":\"Vanilla Candle\",\"quantity\":2,\"unitPrice\":8.5,\"id\":\"3702d2e7-d490-46e8-9e31-81c7f666ab60\",\"status\":\"Delivered\",\"total\":17}"
+    },
+    {
+      "name": "Exact-cent arithmetic",
+      "expectedStatus": 200,
+      "outcome": "PASS",
+      "method": "PATCH",
+      "path": "/api/orders/3702d2e7-d490-46e8-9e31-81c7f666ab60",
+      "requestBody": {
+        "quantity": 3,
+        "unitPrice": 0.1
+      },
+      "status": 200,
+      "responseBody": {
+        "customerName": "Mira API Demo",
+        "phone": "DEMO-API-001",
+        "productName": "Vanilla Candle",
+        "quantity": 3,
+        "unitPrice": 0.1,
+        "id": "3702d2e7-d490-46e8-9e31-81c7f666ab60",
+        "status": "Delivered",
+        "total": 0.3
+      },
+      "responseText": "{\"customerName\":\"Mira API Demo\",\"phone\":\"DEMO-API-001\",\"productName\":\"Vanilla Candle\",\"quantity\":3,\"unitPrice\":0.1,\"id\":\"3702d2e7-d490-46e8-9e31-81c7f666ab60\",\"status\":\"Delivered\",\"total\":0.3}"
+    },
+    {
+      "name": "Decimal 0.29 remains valid",
+      "expectedStatus": 200,
+      "outcome": "PASS",
+      "method": "PATCH",
+      "path": "/api/orders/3702d2e7-d490-46e8-9e31-81c7f666ab60",
+      "requestBody": {
+        "unitPrice": 0.29
+      },
+      "status": 200,
+      "responseBody": {
+        "customerName": "Mira API Demo",
+        "phone": "DEMO-API-001",
+        "productName": "Vanilla Candle",
+        "quantity": 3,
+        "unitPrice": 0.29,
+        "id": "3702d2e7-d490-46e8-9e31-81c7f666ab60",
+        "status": "Delivered",
+        "total": 0.87
+      },
+      "responseText": "{\"customerName\":\"Mira API Demo\",\"phone\":\"DEMO-API-001\",\"productName\":\"Vanilla Candle\",\"quantity\":3,\"unitPrice\":0.29,\"id\":\"3702d2e7-d490-46e8-9e31-81c7f666ab60\",\"status\":\"Delivered\",\"total\":0.87}"
+    },
+    {
+      "name": "Reject unsafe quantity",
+      "expectedStatus": 400,
+      "outcome": "PASS",
+      "method": "PATCH",
+      "path": "/api/orders/3702d2e7-d490-46e8-9e31-81c7f666ab60",
+      "requestBody": {
+        "quantity": 9007199254740992
+      },
+      "status": 400,
+      "responseBody": {
+        "message": "quantity must be a positive safe integer (at least 1)."
+      },
+      "responseText": "{\"message\":\"quantity must be a positive safe integer (at least 1).\"}"
+    },
+    {
+      "name": "Reject unsafe total",
+      "expectedStatus": 400,
+      "outcome": "PASS",
+      "method": "PATCH",
+      "path": "/api/orders/3702d2e7-d490-46e8-9e31-81c7f666ab60",
+      "requestBody": {
+        "quantity": 9007199254740991,
+        "unitPrice": 10
+      },
+      "status": 400,
+      "responseBody": {
+        "message": "The order total exceeds the supported exact-cent range."
+      },
+      "responseText": "{\"message\":\"The order total exceeds the supported exact-cent range.\"}"
+    },
+    {
+      "name": "Create unique accidental order",
+      "expectedStatus": 201,
+      "outcome": "PASS",
+      "method": "POST",
+      "path": "/api/orders",
+      "requestBody": {
+        "customerName": "Accidental API Demo",
+        "phone": "  DEMO-API-001  ",
+        "productName": "  Vanilla Candle  ",
+        "quantity": 3,
+        "unitPrice": 8
+      },
+      "status": 201,
+      "responseBody": {
+        "customerName": "Accidental API Demo",
+        "phone": "DEMO-API-001",
+        "productName": "Vanilla Candle",
+        "quantity": 3,
+        "unitPrice": 8,
+        "id": "2c39bf7d-926e-4ba8-8cd5-dbb4166e8702",
+        "status": "Pending",
+        "total": 24
+      },
+      "responseText": "{\"customerName\":\"Accidental API Demo\",\"phone\":\"DEMO-API-001\",\"productName\":\"Vanilla Candle\",\"quantity\":3,\"unitPrice\":8,\"id\":\"2c39bf7d-926e-4ba8-8cd5-dbb4166e8702\",\"status\":\"Pending\",\"total\":24}"
+    },
+    {
+      "name": "Delete accidental order with empty 204",
+      "expectedStatus": 204,
+      "outcome": "PASS",
+      "method": "DELETE",
+      "path": "/api/orders/2c39bf7d-926e-4ba8-8cd5-dbb4166e8702",
+      "requestBody": null,
+      "status": 204,
+      "responseBody": "",
+      "responseText": ""
+    },
+    {
+      "name": "Deleted ID returns 404",
+      "expectedStatus": 404,
+      "outcome": "PASS",
+      "method": "GET",
+      "path": "/api/orders/2c39bf7d-926e-4ba8-8cd5-dbb4166e8702",
+      "requestBody": null,
+      "status": 404,
+      "responseBody": {
+        "message": "Order not found. Refresh the list to see current orders."
+      },
+      "responseText": "{\"message\":\"Order not found. Refresh the list to see current orders.\"}"
+    },
+    {
+      "name": "GET unknown ID",
+      "expectedStatus": 404,
+      "outcome": "PASS",
+      "method": "GET",
+      "path": "/api/orders/not-an-order",
+      "requestBody": null,
+      "status": 404,
+      "responseBody": {
+        "message": "Order not found. Refresh the list to see current orders."
+      },
+      "responseText": "{\"message\":\"Order not found. Refresh the list to see current orders.\"}"
+    },
+    {
+      "name": "PATCH unknown ID",
+      "expectedStatus": 404,
+      "outcome": "PASS",
+      "method": "PATCH",
+      "path": "/api/orders/not-an-order",
+      "requestBody": {
+        "quantity": 2
+      },
+      "status": 404,
+      "responseBody": {
+        "message": "Order not found. Refresh the list to see current orders."
+      },
+      "responseText": "{\"message\":\"Order not found. Refresh the list to see current orders.\"}"
+    },
+    {
+      "name": "DELETE unknown ID",
+      "expectedStatus": 404,
+      "outcome": "PASS",
+      "method": "DELETE",
+      "path": "/api/orders/not-an-order",
+      "requestBody": null,
+      "status": 404,
+      "responseBody": {
+        "message": "Order not found. Refresh the list to see current orders."
+      },
+      "responseText": "{\"message\":\"Order not found. Refresh the list to see current orders.\"}"
+    },
+    {
+      "name": "Delete primary test record",
+      "expectedStatus": 204,
+      "outcome": "PASS",
+      "method": "DELETE",
+      "path": "/api/orders/3702d2e7-d490-46e8-9e31-81c7f666ab60",
+      "requestBody": null,
+      "status": 204,
+      "responseBody": "",
+      "responseText": ""
+    }
+  ]
+}
