@@ -94,3 +94,5 @@ No screen-reader user test, full accessibility audit, real-client interview, opt
 Follow README commands using a fresh dedicated local server. Run API and Newman suites before the browser suite. Browser verification deletes only its owned records and known seed records to prove the empty state; it refuses unexpected records. Restart the server afterward. Evidence generators and tests overwrite their own reports/screenshots when rerun.
 
 References: [Newman installation/run](https://learning.postman.com/docs/reference/newman-cli/installing-running-newman), [Newman JSON reports](https://learning.postman.com/latest-v-12/docs/reference/newman-cli/newman-built-in-reporters).
+
+Publication was verified without credentials: the public GitHub repository and branch README both returned HTTP 200. A targeted credential-pattern scan found no matches and git diff whitespace checks passed.

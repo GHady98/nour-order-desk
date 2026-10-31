@@ -110,3 +110,8 @@ Endpoint PNGs are clearly labelled visual receipts generated from actual recorde
 Next.js 16.4.3, React 19.3.0, TypeScript, Tailwind CSS 4, native fetch, and no external runtime service. Implemented and documented with AI assistance; the author remains responsible for understanding the request flow. No user research or personal manual verification is invented. No optional recording is included.
 
 At installation, npm audit found 16 moderate advisories in development lint-tool dependencies; the production-only audit reported zero. No forced downgrade or breaking audit fix was applied. The test runner also emitted dependency deprecation notices; its actual assertions passed. See TESTING.md.
+## Publication update — 31 October 2026
+
+The public repository and assignment branch were created and pushed successfully. Unauthenticated GitHub checks returned 200 with public visibility and the README containing Ghady Nazha.
+
+Email status: **not sent**. The browser automation runtime stopped while navigating to Gmail because it could not confidently verify the current browser URL. No email send was attempted after that stop. The exact prepared email is in docs/submission-email.txt; sending can resume once Gmail is available in Chrome. No deployment or optional recording is claimed.
